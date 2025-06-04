@@ -38,7 +38,7 @@ def visualise_flakes(
         # put the text on the top right corner of the image
         cv2.putText(
             image,
-            f"{(idx + 1):2}. {flake.thickness:1}L {int(flake.size * 0.3844**2):4}um2 {1- flake.false_positive_probability:.0%}",
+            f"{(idx + 1):2}. {flake.thickness:1}L {int(flake.size):4}pixels {1- flake.false_positive_probability:.0%}",
             (10, 30 * (idx + 1)),
             cv2.QT_FONT_NORMAL,
             1,
