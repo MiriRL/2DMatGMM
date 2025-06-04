@@ -75,4 +75,5 @@ def remove_vignette(
     """
     image_no_vigentte = image / flatfield * cv2.mean(flatfield)[:-1]
     image_no_vigentte[image_no_vigentte > max_background_value] = max_background_value
+    cv2.imwrite("/Users/miril/Desktop/image_no_vignette.jpg", image_no_vigentte)
     return np.asarray(image_no_vigentte, dtype=np.uint8)
