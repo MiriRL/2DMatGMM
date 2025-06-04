@@ -25,7 +25,7 @@ class MaterialDetector:
     def __init__(
         self,
         contrast_dict: dict,
-        size_threshold: int = 1000,
+        size_threshold: int = 2500,  # Originally 1000 when calibrated for 20x. 2500 pixels for 50x magnification.
         standard_deviation_threshold: float = 5,
         used_channels: str = "BGR",
         false_positive_detector_path: str = None,
