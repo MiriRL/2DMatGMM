@@ -1,168 +1,156 @@
 # Original code from The Qt Company Ltd. 2022
 # Modified for personal use
 import sys
+import json
+import os
 
 from PySide6.QtCore import QFileInfo
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QLabel,
-    QCheckBox,
+    QComboBox,
     QApplication,
     QDialog,
     QTabWidget,
     QLineEdit,
-    QDialogButtonBox,
+    QPushButton,
     QFrame,
     QListWidget,
-    QGroupBox,
+    QFileDialog,
 )
 
 
 class TabDialog(QDialog):
-    def __init__(self, file_name: str, parent: QWidget = None):
+    def __init__(self, parent: QWidget = None):
         super().__init__(parent)
 
-        file_info = QFileInfo(file_name)
-
         tab_widget = QTabWidget()
-        tab_widget.addTab(InfoTab(file_info, self), "Help")
-        tab_widget.addTab(DetectorTab(file_info, self), "Detect Flakes")
-        tab_widget.addTab(DatabaseTab(file_info, self), "Database")
+
+        tab_widget.addTab(InfoTab(self), "Help")
+        tab_widget.addTab(DetectorTab(self), "Detect Flakes")
+        tab_widget.addTab(DatabaseTab(self), "Database")
 
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(tab_widget)
         self.setLayout(main_layout)
         self.setWindowTitle("2DMatGMM")
+        self.resize(1000, 500)
 
 
 class InfoTab(QWidget):
-    def __init__(self, file_info: QFileInfo, parent: QWidget):
+    def __init__(self, parent: QWidget):
         super().__init__(parent)
 
-        file_name_label = QLabel("File Name:")
-        file_name_edit = QLineEdit(file_info.fileName())
-
-        path_label = QLabel("Path:")
-        path_value_label = QLabel(file_info.absoluteFilePath())
-        path_value_label.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Sunken)
-
-        size_label = QLabel("Size:")
-        size = file_info.size() / 1024
-        size_value_label = QLabel(f"{size} K")
-        size_value_label.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Sunken)
-
-        last_read_label = QLabel("Last Read:")
-        last_read_value_label = QLabel(file_info.lastRead().toString())
-        last_read_value_label.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Sunken)
-
-        last_mod_label = QLabel("Last Modified:")
-        last_mod_value_label = QLabel(file_info.lastModified().toString())
-        last_mod_value_label.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Sunken)
-
-        main_layout = QVBoxLayout()
-        main_layout.addWidget(file_name_label)
-        main_layout.addWidget(file_name_edit)
-        main_layout.addWidget(path_label)
-        main_layout.addWidget(path_value_label)
-        main_layout.addWidget(size_label)
-        main_layout.addWidget(size_value_label)
-        main_layout.addWidget(last_read_label)
-        main_layout.addWidget(last_read_value_label)
-        main_layout.addWidget(last_mod_label)
-        main_layout.addWidget(last_mod_value_label)
-        main_layout.addStretch(1)
-        self.setLayout(main_layout)
 
 
 class DetectorTab(QWidget):
-    def __init__(self, file_info: QFileInfo, parent: QWidget):
+    def __init__(self, parent: QWidget):
         super().__init__(parent)
 
-        permissions_group = QGroupBox("Permissions")
+        # Placeholder for selected variables
+        self.selected_folder_path = None
+        
+        # Get the models_info file from one level up in the Models folder
+        parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        model_path = os.path.join(parent_dir, "Models/models_info.json")
+        self.models = json.load(open(model_path, "r"))
 
-        readable = QCheckBox("Readable")
-        if file_info.isReadable():
-            readable.setChecked(True)
+        select_file_label = QLabel("Select the folder containing the images:")
+        self.browse_file_button = QPushButton("Browse files")
+        self.browse_file_button.clicked.connect(self.browse_file)
+        self.browse_file_button.setStyleSheet("""
+            QPushButton {
+                border: 1px solid gray;
+                background-color: #f0f0f0;
+                color: black;
+                padding: 4px;
+            }
+        """)
 
-        writable = QCheckBox("Writable")
-        if file_info.isWritable():
-            writable.setChecked(True)
+        select_model_label = QLabel("Select the model you want to use:")
+        self.models_list_box = QComboBox()
+        
+        self.models_list_box.addItem("--")  # This acts as a default "unselected" option
+        self.models_list_box.addItems(self.models.keys())
+        self.models_list_box.currentTextChanged.connect(self.select_model)
 
-        executable = QCheckBox("Executable")
-        if file_info.isExecutable():
-            executable.setChecked(True)
-
-        owner_group = QGroupBox("Ownership")
-
-        owner_label = QLabel("Owner")
-        owner_value_label = QLabel(file_info.owner())
-        owner_value_label.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Sunken)
-
-        group_label = QLabel("Group")
-        group_value_label = QLabel(file_info.group())
-        group_value_label.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Sunken)
-
-        permissions_layout = QVBoxLayout()
-        permissions_layout.addWidget(readable)
-        permissions_layout.addWidget(writable)
-        permissions_layout.addWidget(executable)
-        permissions_group.setLayout(permissions_layout)
-
-        owner_layout = QVBoxLayout()
-        owner_layout.addWidget(owner_label)
-        owner_layout.addWidget(owner_value_label)
-        owner_layout.addWidget(group_label)
-        owner_layout.addWidget(group_value_label)
-        owner_group.setLayout(owner_layout)
+        model_description_label = QLabel("Model Description:")
+        self.model_description = QLabel("No model selected.")
+        self.model_description.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Sunken)
 
         main_layout = QVBoxLayout()
-        main_layout.addWidget(permissions_group)
-        main_layout.addWidget(owner_group)
+        main_layout.addWidget(select_file_label)
+        main_layout.addWidget(self.browse_file_button)
+        main_layout.addWidget(select_model_label)
+        main_layout.addWidget(self.models_list_box)
+        main_layout.addWidget(model_description_label)
+        main_layout.addWidget(self.model_description)
         main_layout.addStretch(1)
         self.setLayout(main_layout)
+        
+
+    # Function written by ChatGPT
+    def browse_file(self):
+        folder_path = QFileDialog.getExistingDirectory(self, "Select Folder")
+        if folder_path:
+            self.selected_folder_path = folder_path
+            self.browse_file_button.setText(self.truncate_path(folder_path))
+            print(f"Selected file: {self.selected_folder_path}")
+
+    # Function written by ChatGPT
+    def truncate_path(self, path, max_length = 40):
+        if len(path) <= max_length:
+            return path
+        else:
+            # Keep the start and end, cut out the middle
+            start = path[:20]
+            end = path[-(max_length - len(start) - 3):]
+            return f"{start}...{end}"
+        
+    def select_model(self):
+        curr_text = self.models_list_box.currentText()
+        if curr_text not in self.models:
+            self.model_description.setText("No model selected.")
+        else:
+            curr_model = self.models[curr_text]
+            self.model_description.setText(curr_model["Description"])
 
 
 class DatabaseTab(QWidget):
-    def __init__(self, file_info: QFileInfo, parent: QWidget):
+    def __init__(self, parent: QWidget):
         super().__init__(parent)
 
-        top_label = QLabel("Open with:")
+        # top_label = QLabel("Open with:")
 
-        applications_list_box = QListWidget()
-        applications = []
+        # applications_list_box = QListWidget()
+        # applications = []
 
-        for i in range(1, 31):
-            applications.append(f"Application {i}")
-        applications_list_box.insertItems(0, applications)
+        # for i in range(1, 31):
+        #     applications.append(f"Application {i}")
+        # applications_list_box.insertItems(0, applications)
 
-        if not file_info.suffix():
-            always_check_box = QCheckBox(
-                "Always use this application to open this type of file"
-            )
-        else:
-            always_check_box = QCheckBox(
-                f"Always use this application to open files "
-                f"with the extension {file_info.suffix()}"
-            )
+        # if not file_info.suffix():
+        #     always_check_box = QCheckBox(
+        #         "Always use this application to open this type of file"
+        #     )
+        # else:
+        #     always_check_box = QCheckBox(
+        #         f"Always use this application to open files "
+        #         f"with the extension {file_info.suffix()}"
+        #     )
 
-        layout = QVBoxLayout()
-        layout.addWidget(top_label)
-        layout.addWidget(applications_list_box)
-        layout.addWidget(always_check_box)
-        self.setLayout(layout)
-
+        # layout = QVBoxLayout()
+        # layout.addWidget(top_label)
+        # layout.addWidget(applications_list_box)
+        # layout.addWidget(always_check_box)
+        # self.setLayout(layout)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    if len(sys.argv) >= 2:
-        file_name = sys.argv[1]
-    else:
-        file_name = "."
-
-    tab_dialog = TabDialog(file_name)
+    tab_dialog = TabDialog()
     tab_dialog.show()
 
     sys.exit(app.exec())
