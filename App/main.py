@@ -1,10 +1,8 @@
-# Original code from The Qt Company Ltd. 2022
-# Modified for personal use
 import sys
 import json
 import os
 
-from PySide6.QtCore import QFileInfo
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -13,12 +11,15 @@ from PySide6.QtWidgets import (
     QApplication,
     QDialog,
     QTabWidget,
-    QLineEdit,
     QPushButton,
     QFrame,
-    QListWidget,
     QFileDialog,
 )
+
+from run_detector import run_algorithm
+
+# Model path relative to the parent directory
+MODEL_PATH = "Models/models_info.json"
 
 
 class TabDialog(QDialog):
@@ -51,10 +52,11 @@ class DetectorTab(QWidget):
 
         # Placeholder for selected variables
         self.selected_folder_path = None
+        self.curr_model_is_valid = False
         
         # Get the models_info file from one level up in the Models folder
         parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        model_path = os.path.join(parent_dir, "Models/models_info.json")
+        model_path = os.path.join(parent_dir, MODEL_PATH)
         self.models = json.load(open(model_path, "r"))
 
         select_file_label = QLabel("Select the folder containing the images:")
@@ -80,6 +82,27 @@ class DetectorTab(QWidget):
         self.model_description = QLabel("No model selected.")
         self.model_description.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Sunken)
 
+        self.debugging_text = QLabel("")
+
+        self.run_button = QPushButton("RUN")
+        self.run_button.clicked.connect(self.run_model)
+        self.run_button.setStyleSheet("""
+            QPushButton {
+                border: 1px solid gray;
+                background-color: #39e75f;
+                color: black;
+                font-weight: bold; 
+                font-size: 16px;
+                border: 2px solid gray; 
+                border-radius: 5px;
+                padding: 12px 24px; 
+                text-align: center; 
+            }
+            QPushButton:hover {
+                background-color: #2fba4d;      /* Slightly darker on hover */
+            }
+        """)
+
         main_layout = QVBoxLayout()
         main_layout.addWidget(select_file_label)
         main_layout.addWidget(self.browse_file_button)
@@ -87,7 +110,9 @@ class DetectorTab(QWidget):
         main_layout.addWidget(self.models_list_box)
         main_layout.addWidget(model_description_label)
         main_layout.addWidget(self.model_description)
-        main_layout.addStretch(1)
+        main_layout.addStretch()
+        main_layout.addWidget(self.debugging_text)
+        main_layout.addWidget(self.run_button, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         self.setLayout(main_layout)
         
 
@@ -97,7 +122,6 @@ class DetectorTab(QWidget):
         if folder_path:
             self.selected_folder_path = folder_path
             self.browse_file_button.setText(self.truncate_path(folder_path))
-            print(f"Selected file: {self.selected_folder_path}")
 
     # Function written by ChatGPT
     def truncate_path(self, path, max_length = 40):
@@ -113,39 +137,23 @@ class DetectorTab(QWidget):
         curr_text = self.models_list_box.currentText()
         if curr_text not in self.models:
             self.model_description.setText("No model selected.")
+            self.curr_model_is_valid = False
         else:
             curr_model = self.models[curr_text]
             self.model_description.setText(curr_model["Description"])
+            self.curr_model_is_valid = True
+    
+    def run_model(self):
+        if self.curr_model_is_valid and os.path.isdir(self.selected_folder_path):
+            self.debugging_text.setText("Running current model.")
+            run_algorithm()
+        else:
+            self.debugging_text.setText("Selected model or selected folder are not valid.")
 
 
 class DatabaseTab(QWidget):
     def __init__(self, parent: QWidget):
         super().__init__(parent)
-
-        # top_label = QLabel("Open with:")
-
-        # applications_list_box = QListWidget()
-        # applications = []
-
-        # for i in range(1, 31):
-        #     applications.append(f"Application {i}")
-        # applications_list_box.insertItems(0, applications)
-
-        # if not file_info.suffix():
-        #     always_check_box = QCheckBox(
-        #         "Always use this application to open this type of file"
-        #     )
-        # else:
-        #     always_check_box = QCheckBox(
-        #         f"Always use this application to open files "
-        #         f"with the extension {file_info.suffix()}"
-        #     )
-
-        # layout = QVBoxLayout()
-        # layout.addWidget(top_label)
-        # layout.addWidget(applications_list_box)
-        # layout.addWidget(always_check_box)
-        # self.setLayout(layout)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
