@@ -18,3 +18,6 @@ Datasets/GMMDetectorDatasets/WSe2
 
 # Dont commit VSCode settings
 .vscode
+
+# dont commit mac ds_store files
+**/.DS_Store
