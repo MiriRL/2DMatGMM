@@ -1,7 +1,7 @@
 import os
 
 from GMMDetector import MaterialDetector
-from demo.demo_functions import visualise_flakes
+# from demo.demo_functions import visualise_flakes
 
 MODEL_DIR = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), "Model")
 
