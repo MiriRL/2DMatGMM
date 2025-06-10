@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from run_detector import run_algorithm
+from database import DatabaseTab
 
 # Model path relative to the parent directory
 MODEL_PATH = "Models/models_info.json"
@@ -44,6 +45,17 @@ class InfoTab(QWidget):
     def __init__(self, parent: QWidget):
         super().__init__(parent)
 
+        info = QLabel("")
+        info.setWordWrap(True)
+        info.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        info_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "welcome_info.html")
+        with open(info_path, 'r', encoding='utf-8') as file:
+            info.setText(file.read())
+
+        layout = QVBoxLayout()
+        layout.addWidget(info)
+        self.setLayout(layout)
 
 
 class DetectorTab(QWidget):
@@ -153,13 +165,10 @@ class DetectorTab(QWidget):
             model_file_name = curr_model["File Name"]
             run_algorithm(model_file_name, self.selected_folder_path)
             #TODO: Add a way to tell when it's done
+            #TODO: Add error messages in window
         else:
             self.debugging_text.setText("Selected model or selected folder are not valid.")
 
-
-class DatabaseTab(QWidget):
-    def __init__(self, parent: QWidget):
-        super().__init__(parent)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
