@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QFileDialog,
 )
 
+from Parameters import ParametersLayout
 from run_detector import run_algorithm
 from database import DatabaseTab
 
@@ -94,6 +95,8 @@ class DetectorTab(QWidget):
         self.model_description = QLabel("No model selected.")
         self.model_description.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Sunken)
 
+        self.parameters_layout = ParametersLayout()
+
         self.debugging_text = QLabel("")
 
         self.run_button = QPushButton("RUN")
@@ -122,6 +125,7 @@ class DetectorTab(QWidget):
         main_layout.addWidget(self.models_list_box)
         main_layout.addWidget(model_description_label)
         main_layout.addWidget(self.model_description)
+        main_layout.addChildLayout(self.parameters_layout)
         main_layout.addStretch()
         main_layout.addWidget(self.debugging_text)
         main_layout.addWidget(self.run_button, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
@@ -163,7 +167,7 @@ class DetectorTab(QWidget):
             self.debugging_text.setText("Running current model.")
             curr_model = self.models[self.models_list_box.currentText()]
             model_file_name = curr_model["File Name"]
-            run_algorithm(model_file_name, self.selected_folder_path)
+            run_algorithm(model_file_name, self.selected_folder_path, self.parameters_layout.get_parameters)
             #TODO: Add a way to tell when it's done
             #TODO: Add error messages in window
         else:
