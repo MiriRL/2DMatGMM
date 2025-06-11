@@ -4,12 +4,13 @@ import cv2
 
 from GMMDetector import MaterialDetector
 from demo_functions import visualise_flakes, remove_vignette
+from Parameters import Parameters
 
 
 MODEL_DIR = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), "Models")
 
 
-def run_algorithm(gmm_file_name, images_dir, parameters):
+def run_algorithm(gmm_file_name, images_dir, parameters: Parameters):
     """ Calls the 2DMatGMM detector as shown in the demo.\n
 
     gmm_file_name: name of the constrast model parameters json file. Should be stored in the Models folder.\n
@@ -25,7 +26,7 @@ def run_algorithm(gmm_file_name, images_dir, parameters):
     # TODO: add options to change the size threshold
     model = MaterialDetector(
         contrast_dict=contrast_dict,
-        size_threshold=parameters.size_threshold,
+        size_threshold=parameters.get_size(),
         standard_deviation_threshold=5,
         used_channels="BGR",
     )
@@ -38,6 +39,8 @@ def run_algorithm(gmm_file_name, images_dir, parameters):
 
     image_names = os.listdir(images_dir)
     for image_name in image_names:
+        if image_name == ".DS_Store":  # If it's the .DS_store file we skip this file and continue with the next images
+            continue
         image_path = os.path.join(images_dir, image_name)
         image = cv2.imread(image_path)
         

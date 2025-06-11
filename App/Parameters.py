@@ -1,18 +1,10 @@
-import sys
-import json
-import os
-
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QLabel,
-    QComboBox,
-    QApplication,
-    QDialog,
-    QTabWidget,
+    QCheckBox,
     QPushButton,
-    QFrame,
     QFileDialog,
 )
 
@@ -34,13 +26,56 @@ class Parameters:
     def get_size(self):
         return self.size_threshold
 
-class ParametersLayout(QVBoxLayout):
-    def __init__(self, parent: QVBoxLayout):
+class ParametersWidget(QWidget):
+    def __init__(self, parent = None):
         super().__init__(parent)
 
         self.parameters = Parameters()
 
-        
+        self.use_flatfield = QCheckBox("Use flatfield image")
+        self.use_flatfield.toggled.connect(self.set_use_flatfield)
+
+        self.select_file_label = QLabel("Select the flatfield file:")
+        self.browse_file_button = QPushButton("Browse files")
+        self.browse_file_button.clicked.connect(self.browse_file)
+        self.browse_file_button.setStyleSheet("""
+            QPushButton {
+                border: 1px solid gray;
+                background-color: #f0f0f0;
+                color: black;
+                padding: 4px;
+            }
+        """)
+        self.select_file_label.setVisible(False)  # Initial state is off
+        self.browse_file_button.setVisible(False)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.use_flatfield)
+        layout.addWidget(self.select_file_label)
+        layout.addWidget(self.browse_file_button)
+        self.setLayout(layout)
 
     def get_parameters(self):
         return self.parameters
+    
+    def set_use_flatfield(self, checked):
+        self.parameters.use_flatfield = checked
+        self.select_file_label.setVisible(checked)
+        self.browse_file_button.setVisible(checked)
+    
+    # Function written by ChatGPT
+    def browse_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Select File")
+        if file_path:
+            self.parameters.flatfield_path = file_path
+            self.browse_file_button.setText(self.truncate_path(file_path))
+
+    # Function written by ChatGPT
+    def truncate_path(self, path, max_length = 50):
+        if len(path) <= max_length:
+            return path
+        else:
+            # Keep the start and end, cut out the middle
+            start = path[:20]
+            end = path[-(max_length - len(start) - 3):]
+            return f"{start}...{end}"
