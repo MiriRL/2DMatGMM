@@ -3,8 +3,12 @@
         "File Name": "a",
         "Description": "b"
     },
-    "Marked Graphene": {
-        "File Name": "gmm_contrast_data_model_1.json",
-        "Description": "Material: Graphene \nSpecifications:\n\tDetects mono- and bi- layer graphene on a marked chip with a 285nm SiO2 substrate. \n\tTrained with the external/sandbox microscope and old Mosaic camera."
+    "Marked Graphene (External Cataloger)": {
+        "File Name": "gmm_model_1_external.json",
+        "Description": "Material: Graphene \nSpecifications:\n\tDetects mono- and bi- layer graphene on a marked chip with a 285nm SiO2 substrate. \n\tTrained with the external microscope and old Mosaic camera."
+    },
+    "Marked Graphene (MonArk Cataloger)": {
+        "File Name": "gmm_model_2_monArk.json",
+        "Description": "Material: Graphene \nSpecifications:\n\tDetects mono- and bi- layer graphene on a marked chip with a 285nm SiO2 substrate. \n\tTrained with the glovebox microscope and uEye camera."
     }
 }
