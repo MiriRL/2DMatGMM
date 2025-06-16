@@ -48,7 +48,7 @@ class DetectorManager(QWidget):
         # TODO: add options to change the size threshold
         self.model: MaterialDetector = None
         try:
-            model = MaterialDetector(
+            self.model = MaterialDetector(
                 contrast_dict=contrast_dict,
                 size_threshold=parameters.get_size(),
                 standard_deviation_threshold=5,
@@ -62,32 +62,37 @@ class DetectorManager(QWidget):
 
         # TODO: add flatfield correction option
         if parameters.use_flatfield:
-            flatfield = cv2.imread(parameters.flatfield_path)
-            if flatfield is None:
+            self.flatfield = cv2.imread(parameters.flatfield_path)
+            if self.flatfield is None:
                 raise ValueError(f"Could not load flatfield image from: {parameters.flatfield_path}")
 
         self.image_names = os.listdir(images_dir)
 
         # Update Progress Bar Maximum
-        self.total_idx = len(self.image_names)
-        self.curr_idx = 0
-        self.total_images = self.total_idx
-
         if ".DS_Store" in self.image_names:
-            self.total_images -= 1
+            self.image_names.remove(".DS_Store")
+        self.total_images = len(self.image_names)
+        self.curr_idx = 0
+        
         self.progress_text.setText(str(0) + " / " + str(self.total_images) + " images processed")
         self.progress_bar.setRange(0, self.total_images)
         self.progress_bar.setValue(0)
+
+        QTimer.singleShot(0, self.run_image)
             
 
     def run_image(self):
-        if self.curr_idx > self.total_idx:
+        if self.curr_idx >= self.total_images:
+            self.progress_text.setText("Process complete.")
+            print("Finished")
             return
 
         image_name = self.image_names[self.curr_idx]
 
-
         if image_name == ".DS_Store":  # If it's the .DS_store file, we skip this file and continue with the next images
+            self.curr_idx += 1
+            print("Skipping the DS_Store file")
+            QTimer.singleShot(0, self.run_image)
             return
         image_path = os.path.join(self.images_dir, image_name)
         image = cv2.imread(image_path)
