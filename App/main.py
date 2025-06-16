@@ -2,7 +2,7 @@ import sys
 import json
 import os
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThread
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from Parameters import ParametersWidget
-from run_detector import run_algorithm
+from  DetectorManager import DetectorManager
 from database import DatabaseTab
 
 # Model path relative to the parent directory
@@ -66,6 +66,9 @@ class DetectorTab(QWidget):
         # Placeholder for selected variables
         self.selected_folder_path = None
         self.curr_model_is_valid = False
+        self.detector_thread = None
+        self.detector = None
+        self.total_images = 0
         
         # Get the models_info file from one level up in the Models folder
         parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -119,6 +122,9 @@ class DetectorTab(QWidget):
             }
         """)
 
+        
+        self.detector = DetectorManager()
+
         main_layout = QVBoxLayout()
         main_layout.addWidget(select_file_label)
         main_layout.addWidget(self.browse_file_button)
@@ -130,6 +136,7 @@ class DetectorTab(QWidget):
         main_layout.addWidget(self.parameters_widget)
         main_layout.addStretch()
         main_layout.addWidget(self.debugging_text)
+        main_layout.addWidget(self.detector, alignment=Qt.AlignmentFlag.AlignHCenter)
         main_layout.addWidget(self.run_button, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         self.setLayout(main_layout)
         
@@ -169,7 +176,9 @@ class DetectorTab(QWidget):
             self.debugging_text.setText("Running current model.")
             curr_model = self.models[self.models_list_box.currentText()]
             model_file_name = curr_model["File Name"]
-            run_algorithm(model_file_name, self.selected_folder_path, self.parameters_widget.get_parameters())
+            
+            self.detector.run_detector(model_file_name, self.selected_folder_path, self.parameters_widget.get_parameters())
+
             #TODO: Add a way to tell when it's done
             #TODO: Add error messages in window
         else:
