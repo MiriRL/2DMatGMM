@@ -66,14 +66,40 @@ class DetectorManager(QWidget):
             if self.flatfield is None:
                 raise ValueError(f"Could not load flatfield image from: {parameters.flatfield_path}")
 
-        self.image_names = os.listdir(images_dir)
+        self.image_file_names = os.listdir(images_dir)
+        self.images = []
+        self.image_names = []
 
         # Update Progress Bar Maximum
-        if ".DS_Store" in self.image_names:
-            self.image_names.remove(".DS_Store")
-        self.total_images = len(self.image_names)
-        self.curr_idx = 0
+        if ".DS_Store" in self.image_file_names:
+            self.image_file_names.remove(".DS_Store")
+            print("Removed .DS_Store from image names list.")
         
+
+        for image_name in self.image_file_names:
+            image_path = os.path.join(self.images_dir, image_name)
+            if image_path.endswith(".png" or ".jpg" or ".jpeg"):
+                image = cv2.imread(image_path)
+                self.images.append(image)
+                self.image_names.append(image_name)
+            elif image_path.endswith(".tif" or ".tiff"):
+                print(f"Reading multi-page TIFF image {image_name}...")
+                # Use cv2.imreadmulti to read multi-page TIFF images
+                success, images_list = cv2.imreadmulti(image_path, [])
+                img_count = 0
+                if success:
+                    for img in images_list:
+                        self.images.append(img)
+                        self.image_names.append(f"{img_count}_" + image_name)
+                        img_count += 1
+                else:
+                    print(f"Failed to read TIFF image {image_name}. Skipping.")
+            else:
+                print(f"Unsupported image format for {image_name}. Skipping.")
+        
+        self.total_images = len(self.images)
+        self.curr_idx = 0
+
         self.progress_text.setText(str(0) + " / " + str(self.total_images) + " images processed")
         self.progress_bar.setRange(0, self.total_images)
         self.progress_bar.setValue(0)
@@ -86,21 +112,14 @@ class DetectorManager(QWidget):
             self.progress_text.setText("Process complete.")
             print("Finished")
             return
-
+        
+        image = self.images[self.curr_idx]
         image_name = self.image_names[self.curr_idx]
 
-        if image_name == ".DS_Store":  # If it's the .DS_store file, we skip this file and continue with the next images
-            self.curr_idx += 1
-            print("Skipping the DS_Store file")
-            QTimer.singleShot(0, self.run_image)
-            return
-        image_path = os.path.join(self.images_dir, image_name)
-        image = cv2.imread(image_path)
-        
         # Remove vignette if necessary
         if self.parameters.use_flatfield:
             image = remove_vignette(image, self.flatfield)
-
+        
         flakes = self.model.detect_flakes(image)
 
         image = visualise_flakes(
@@ -110,7 +129,7 @@ class DetectorManager(QWidget):
         )
         # Save the processed image with detected flakes
         try:
-            cv2.imwrite(os.path.join(self.images_dir, "detected_" + image_name), image)
+            cv2.imwrite(os.path.join(self.images_dir, "..", "output", "detected_" + image_name), image)
         except Exception as e:
             print(f"OpenCV write failed: {e}")
 
