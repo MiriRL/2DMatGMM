@@ -47,6 +47,22 @@ class DetectorManager(QWidget):
         self.images_dir = images_dir
         self.parameters = parameters
 
+        # Create a folder to save the images in
+        database_dir = os.path.join(self.images_dir, "..", "2DMatGMMoutput")
+        if self.parameters.save_to_database:
+            database_dir = Path.home() / "Box" / "Quantum Device Lab" / "External Optical Cataloger"
+            if not database_dir.exists():
+                message = f"{database_dir} not found. Defaulting to local directory."
+                self.debugging_label.setText(message)
+                database_dir = os.path.join(self.images_dir, "..", "2DMatGMMoutput")
+                raise ModuleNotFoundError(message)
+            
+        # Make a folder name based off the current date/time and model/material
+        #TODO: add model and user info to folder name
+        new_folder_name = time.strftime("%Y-%m-%d_%H-%M-%S")
+        self.folder_path = database_dir / new_folder_name
+        self.folder_path.mkdir(parents=True, exist_ok=True)
+
         # Load the trained parameters
         gmm_file_path = os.path.join(MODEL_DIR, gmm_file_name)
         if not os.path.exists(gmm_file_path):
@@ -138,6 +154,10 @@ class DetectorManager(QWidget):
             message = f"Unsupported image format for {image_name}. Skipping."
             self.debugging_label.setText(message)
             print(message)
+        
+        self.curr_idx += 1
+        QTimer.singleShot(0, self.prepare_images)
+
 
 
     def run_image(self):
@@ -166,22 +186,9 @@ class DetectorManager(QWidget):
                 confidence_threshold=self.parameters.min_confidence,
             )
             # Save the processed image with detected flakes
-            database_dir = os.path.join(self.images_dir, "..", "2DMatGMMoutput")
-            if self.parameters.save_to_database:
-                database_dir = Path.home() / "Box" / "Quantum Device Lab" / "External Optical Cataloger"
-                if not database_dir.exists():
-                    message = f"{database_dir} not found. Defaulting to local directory."
-                    self.debugging_label.setText(message)
-                    database_dir = os.path.join(self.images_dir, "..", "2DMatGMMoutput")
-                    raise ModuleNotFoundError(message)
-                
-            # Make a folder name based off the current date/time and model/material
-            #TODO: add model and user info to folder name
-            new_folder_name = time.strftime("%Y-%m-%d_%H-%M-%S")
-            folder_path = database_dir / new_folder_name
-            folder_path.mkdir(parents=True, exist_ok=True)
+            
             try:
-                cv2.imwrite(os.path.join(folder_path, "detected_" + image_name), image)
+                cv2.imwrite(os.path.join(self.folder_path, "detected_" + image_name), image)
             except Exception as e:
                 message = f"OpenCV write failed: {e}"
                 self.debugging_label.setText(message)

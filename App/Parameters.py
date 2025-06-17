@@ -6,7 +6,8 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QPushButton,
     QFileDialog,
-    QHBoxLayout
+    QHBoxLayout,
+    QFrame
 )
 
 # Stores adjustable parameters for the dectector
@@ -16,14 +17,17 @@ class Parameters:
             size_threshold: int = 1000,
             min_confidence: float = 0.0,
             use_flatfield: bool = False,
-            flatfield_path: str = ""
+            flatfield_path: str = "",
+            save_to_database: bool = True
     ):
         self.size_threshold = size_threshold
         self.min_confidence = min_confidence
 
         self.use_flatfield = use_flatfield
         self.flatfield_path = flatfield_path
-    
+
+        self.save_to_database = save_to_database
+
     def get_size(self):
         return self.size_threshold
 
@@ -35,7 +39,15 @@ class ParametersWidget(QWidget):
 
         # size_threshold and min_confidence go in their own horizontal layout within the vertical layout
 
+        self.use_database = QCheckBox("Save flakes to database")
+        self.use_database.setChecked(True)
+        self.use_database.toggled.connect(self.set_use_database)
+
+
         h_layout = QHBoxLayout()
+        h_layout.addWidget(self.use_database)
+        h_frame = QFrame()
+        h_frame.setLayout(h_layout)
 
         self.use_flatfield = QCheckBox("Use flatfield image")
         self.use_flatfield.toggled.connect(self.set_use_flatfield)
@@ -55,6 +67,7 @@ class ParametersWidget(QWidget):
         self.browse_file_button.setVisible(False)
 
         layout = QVBoxLayout()
+        layout.addWidget(h_frame)
         layout.addWidget(self.use_flatfield)
         layout.addWidget(self.select_file_label)
         layout.addWidget(self.browse_file_button)
@@ -67,6 +80,9 @@ class ParametersWidget(QWidget):
         self.parameters.use_flatfield = checked
         self.select_file_label.setVisible(checked)
         self.browse_file_button.setVisible(checked)
+
+    def set_use_database(self, checked):
+        self.parameters.save_to_database = checked
     
     # Function written by ChatGPT
     def browse_file(self):
