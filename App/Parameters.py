@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QPushButton,
     QFileDialog,
+    QHBoxLayout
 )
 
 # Stores adjustable parameters for the dectector
@@ -31,6 +32,10 @@ class ParametersWidget(QWidget):
         super().__init__(parent)
 
         self.parameters = Parameters()
+
+        # size_threshold and min_confidence go in their own horizontal layout within the vertical layout
+
+        h_layout = QHBoxLayout()
 
         self.use_flatfield = QCheckBox("Use flatfield image")
         self.use_flatfield.toggled.connect(self.set_use_flatfield)
