@@ -1,8 +1,4 @@
 {
-    "Model Name": {
-        "File Name": "a",
-        "Description": "b"
-    },
     "Marked Graphene (External Cataloger)": {
         "File Name": "gmm_model_1_external.json",
         "Description": "Material: Graphene \nSpecifications:\n\tDetects mono- and bi- layer graphene on a marked chip with a 285nm SiO2 substrate. \n\tTrained with the external microscope and old Mosaic camera."

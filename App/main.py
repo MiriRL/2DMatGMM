@@ -3,6 +3,7 @@ import json
 import os
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -20,7 +21,7 @@ from Parameters import ParametersWidget
 from  DetectorManager import DetectorManager
 from database import DatabaseTab
 
-# Model path relative to the parent directory
+# The path relative to the parent directory of the model_info file
 MODEL_PATH = "Models/models_info.json"
 
 
@@ -66,16 +67,20 @@ class DetectorTab(QWidget):
         # Placeholder for selected variables
         self.selected_folder_path = None
         self.curr_model_is_valid = False
-        self.detector_thread = None
-        self.detector = None
-        self.total_images = 0
         
         # Get the models_info file from one level up in the Models folder
         parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         model_path = os.path.join(parent_dir, MODEL_PATH)
         self.models = json.load(open(model_path, "r"))
 
+        # Create a font for the section text
+        title_font = QFont()
+        title_font.setBold(True)
+        title_font.setPointSize(14)
+
+        # User selects the folder directly containing the images to be processed
         select_file_label = QLabel("Select the folder containing the images:")
+        select_file_label.setFont(title_font)
         self.browse_file_button = QPushButton("Browse files")
         self.browse_file_button.clicked.connect(self.browse_file)
         self.browse_file_button.setStyleSheet("""
@@ -87,22 +92,31 @@ class DetectorTab(QWidget):
             }
         """)
 
+        # User selects the model they want to use from a list of model names, saved in models_info
         select_model_label = QLabel("Select the model you want to use:")
+        select_model_label.setFont(title_font)
         self.models_list_box = QComboBox()
         
         self.models_list_box.addItem("--")  # This acts as a default "unselected" option
         self.models_list_box.addItems(self.models.keys())
         self.models_list_box.currentTextChanged.connect(self.select_model)
 
+        # Shows the description of the model from models_info
         model_description_label = QLabel("Model Description:")
+        model_description_label.setFont(title_font)
         self.model_description = QLabel("No model selected.")
-        self.model_description.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Sunken)
+        self.model_description.setFrameStyle(QFrame.Shape.Box | QFrame.Shadow.Sunken)
+        self.model_description.setMargin(5)
 
+        # A seperate layout containing all the parameters the user can adjust
         parameters_label = QLabel("Optional parameters:")
+        parameters_label.setFont(title_font)
         self.parameters_widget = ParametersWidget()
 
+        # A text box that displays error messages, when necessary
         self.debugging_text = QLabel("")
 
+        # The button to run the model. Should be disabled when the model is currently running.
         self.run_button = QPushButton("RUN")
         self.run_button.clicked.connect(self.run_model)
         self.run_button.setStyleSheet("""
@@ -122,7 +136,7 @@ class DetectorTab(QWidget):
             }
         """)
 
-        
+        # Runs the model, and displays a loading bar. Updates the debugging text when necessary.
         self.detector = DetectorManager(self.debugging_text, self.run_button)
 
         main_layout = QVBoxLayout()
@@ -160,6 +174,7 @@ class DetectorTab(QWidget):
         
     def select_model(self):
         curr_text = self.models_list_box.currentText()
+        # Make sure the selected model is usable
         if curr_text not in self.models:
             self.model_description.setText("No model selected.")
             self.curr_model_is_valid = False
@@ -169,6 +184,7 @@ class DetectorTab(QWidget):
             self.curr_model_is_valid = True
     
     def run_model(self):
+        # Make sure all selected files are valid before running.
         if self.selected_folder_path is None:
             self.debugging_text.setText("Select a folder.")
             return
@@ -178,9 +194,6 @@ class DetectorTab(QWidget):
             model_file_name = curr_model["File Name"]
             
             self.detector.run_detector(model_file_name, self.selected_folder_path, self.parameters_widget.get_parameters())
-
-            #TODO: Add a way to tell when it's done
-            #TODO: Add error messages in window
         else:
             self.debugging_text.setText("Selected model or selected folder are not valid.")
 
