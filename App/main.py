@@ -123,7 +123,7 @@ class DetectorTab(QWidget):
         """)
 
         
-        self.detector = DetectorManager()
+        self.detector = DetectorManager(self.debugging_text, self.run_button)
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(select_file_label)
