@@ -1,7 +1,9 @@
 import os
 import json
 import cv2
+import time
 
+from pathlib import Path
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QLabel, QProgressBar, QHBoxLayout, QWidget, QLabel, QPushButton
 
@@ -164,8 +166,22 @@ class DetectorManager(QWidget):
                 confidence_threshold=self.parameters.min_confidence,
             )
             # Save the processed image with detected flakes
+            database_dir = os.path.join(self.images_dir, "..", "2DMatGMMoutput")
+            if self.parameters.save_to_database:
+                database_dir = Path.home() / "Box" / "Quantum Device Lab" / "External Optical Cataloger"
+                if not database_dir.exists():
+                    message = f"{database_dir} not found. Defaulting to local directory."
+                    self.debugging_label.setText(message)
+                    database_dir = os.path.join(self.images_dir, "..", "2DMatGMMoutput")
+                    raise ModuleNotFoundError(message)
+                
+            # Make a folder name based off the current date/time and model/material
+            #TODO: add model and user info to folder name
+            new_folder_name = time.strftime("%Y-%m-%d_%H-%M-%S")
+            folder_path = database_dir / new_folder_name
+            folder_path.mkdir(parents=True, exist_ok=True)
             try:
-                cv2.imwrite(os.path.join(self.images_dir, "..", "output", "detected_" + image_name), image)
+                cv2.imwrite(os.path.join(folder_path, "detected_" + image_name), image)
             except Exception as e:
                 message = f"OpenCV write failed: {e}"
                 self.debugging_label.setText(message)
