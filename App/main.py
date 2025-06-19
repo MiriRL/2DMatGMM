@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
 
 from Parameters import ParametersWidget
 from  DetectorManager import DetectorManager
-from database import DatabaseTab
+from Database import DatabaseTab
 
 # The path relative to the parent directory of the model_info file
 MODEL_PATH = "Models/models_info.json"

@@ -16,7 +16,7 @@ class watershed_annotator:
         self.image_names = [
             name
             for name in os.listdir(self.image_directory)
-            if (name.endswith(".png") or name.endswith(".jpg"))
+            if (name.endswith(".png") or name.endswith(".jpg") or name.endswith(".tif"))
         ]
         self.image_paths = [
             os.path.join(self.image_directory, name) for name in self.image_names
