@@ -1,10 +1,10 @@
 {
     "Marked Graphene (External Cataloger)": {
         "File Name": "gmm_model_1_external.json",
-        "Description": "Material: Graphene \nSpecifications:\n\tDetects mono- and bi- layer graphene on a marked chip with a 285nm SiO2 substrate. \n\tTrained with the external microscope and old Mosaic camera."
+        "Description": "Material: Graphene \nSpecifications:\n\tDetects mono- and bi- layer graphene on a marked chip with a 285nm SiO2 substrate. \nSetup:\n\tExternal/Sandbox Cataloger\nCamera:\n\tTrue Chrome 2 (extremely bad camera)"
     },
     "Marked Graphene (MonArk Cataloger)": {
         "File Name": "gmm_model_2_monArk.json",
-        "Description": "Material: Graphene \nSpecifications:\n\tDetects mono- and bi- layer graphene on a marked chip with a 285nm SiO2 substrate. \n\tTrained with the glovebox microscope and uEye camera."
+        "Description": "Material: Graphene \nSpecifications:\n\tDetects mono- and bi- layer graphene on a marked chip with a 285nm SiO2 substrate. \nSetup:\n\tMonArk Glovebox Cataloger\nCamera:\n\tuEye fancy color settings"
     }
 }
