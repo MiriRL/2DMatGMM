@@ -130,7 +130,7 @@ class watershed_annotator:
                 self.watershed_segments = np.zeros(
                     self.current_image.shape, dtype=np.uint8
                 )
-                self.watershed_segments[marker_image_copy == 1] = [0, 0, 255]
+                self.watershed_segments[marker_image_copy == 1] = [255, 255, 255]
                 self.watershed_segments[marker_image_copy == 2] = 0
 
                 self.watershed_segments = cv2.morphologyEx(
@@ -146,3 +146,4 @@ class watershed_annotator:
                 self.marks_updated = False
 
         cv2.destroyAllWindows()
+        cv2.waitKey(1)
