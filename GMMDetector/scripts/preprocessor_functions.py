@@ -95,7 +95,8 @@ def calculate_background_color(img, radius=5):
 
     for i in range(3):
         img_channel = img[:, :, i]
-        mask = cv2.inRange(img_channel, 20, 230)
+        # mask = cv2.inRange(img_channel, 20, 230)
+        mask = cv2.inRange(img_channel, 0, 255)  # Accept all colors as possible background
         hist = cv2.calcHist([img_channel], [0], mask, [256], [0, 256])
         hist_mode = np.argmax(hist)
         thresholded_image = cv2.inRange(
