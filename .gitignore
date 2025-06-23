@@ -15,7 +15,7 @@ Datasets/FalsePositiveDetectorDataset/test
 Datasets/FalsePositiveDetectorDataset/train
 Datasets/GMMDetectorDatasets/Graphene
 Datasets/GMMDetectorDatasets/WSe2
-Datasets/GMMDetectorDatasets/
+Datasets/GMMDetectorDatasets/else/
 
 # Dont commit VSCode settings
 .vscode
