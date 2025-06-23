@@ -20,6 +20,9 @@ def get_contrasts_from_dir(
 
     mask_names = os.listdir(mask_directory)
 
+    if ".DS_Store" in mask_names:
+        mask_names.remove(".DS_Store")
+
     for idx, mask_name in enumerate(mask_names):
         print(f"{idx + 1}/{len(mask_names)} read", end="\r")
 
@@ -27,7 +30,7 @@ def get_contrasts_from_dir(
         image_path = os.path.join(image_directory, mask_name)
         if not os.path.exists(image_path):
             image_path = os.path.join(
-                image_directory, mask_name.replace(".png", ".jpg")
+                image_directory, mask_name.replace(".png", ".jpg", ".tif")
             )
         if not os.path.exists(image_path):
             print(f"Could not find image corresponding to mask '{mask_name}', skipping")
@@ -36,6 +39,7 @@ def get_contrasts_from_dir(
 
         mask = cv2.imread(mask_path, 0)
         image = cv2.imread(image_path)
+        print(f"Image {image_path} read")
 
         assert mask is not None, f"Could not load mask {mask_path}"
         assert image is not None, f"Could not load image {image_path}"
