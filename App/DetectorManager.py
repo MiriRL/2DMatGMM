@@ -138,13 +138,12 @@ class DetectorManager(QWidget):
                 print(message)
                 self.debugging_label.setText(message)
                 # Use cv2.imreadmulti to read multi-page TIFF images
-                success, images_list = cv2.imreadmulti(image_path, [])
-                img_count = 0
+                success, self.tif_images_list = cv2.imreadmulti(image_path, [])
                 if success:
-                    for img in images_list:
-                        self.images.append(img)
-                        self.image_names.append(f"{img_count}_" + image_name)
-                        img_count += 1
+                    self.img_count = 0
+                    self.progress_text.setText(str(self.img_count) + " / " + str(len(self.tif_images_list)) + " images unpacked")
+                    self.progress_bar.setRange(0, len(self.tif_images_list))
+                    QTimer.singleShot(0, self.read_tif)
                 else:
                     message = f"Failed to read TIFF image {image_name}. Skipping."
                     self.debugging_label.setText(message)
@@ -157,7 +156,18 @@ class DetectorManager(QWidget):
         self.curr_idx += 1
         QTimer.singleShot(0, self.prepare_images)
 
+    def read_tif(self):
+        if self.img_count >= len(self.tif_images_list):
+            return
 
+        self.images.append(self.tif_images_list[self.img_count])
+        self.image_names.append(f"{img_count}_" + self.image_file_names[self.curr_idx])
+        
+
+        img_count += 1
+        self.progress_text.setText(str(self.img_count) + " / " + str(len(self.tif_images_list)) + " images unpacked")
+        self.progress_bar.setValue(self.curr_idx)
+        QTimer.singleShot(0, self.read_tif)
 
     def run_image(self):
         if self.curr_idx >= self.total_images:
