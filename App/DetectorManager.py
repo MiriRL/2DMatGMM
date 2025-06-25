@@ -48,13 +48,13 @@ class DetectorManager(QWidget):
         self.parameters = parameters
 
         # Create a folder to save the images in
-        database_dir = os.path.join(self.images_dir, "..", "2DMatGMMoutput")
+        database_dir = Path(os.path.join(self.images_dir, "..", "2DMatGMMoutput"))
         if self.parameters.save_to_database:
             database_dir = Path.home() / "Box" / "Quantum Device Lab" / "External Optical Cataloger"
             if not database_dir.exists():
                 message = f"{database_dir} not found. Defaulting to local directory."
                 self.debugging_label.setText(message)
-                database_dir = os.path.join(self.images_dir, "..", "2DMatGMMoutput")
+                database_dir = Path(os.path.join(self.images_dir, "..", "2DMatGMMoutput"))
                 raise ModuleNotFoundError(message)
             
         # Make a folder name based off the current date/time and model/material
@@ -85,8 +85,6 @@ class DetectorManager(QWidget):
             self.debugging_label.setText(message)
             print(message)
             return
-
-        # TODO: add options to change the confidence threshold
 
         if parameters.use_flatfield:
             self.flatfield = cv2.imread(parameters.flatfield_path)

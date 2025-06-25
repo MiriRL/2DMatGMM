@@ -6,5 +6,9 @@
     "Marked Graphene (MonArk Cataloger)": {
         "File Name": "gmm_model_2_monArk.json",
         "Description": "Material: Graphene \nSpecifications:\n\tDetects mono- and bi- layer graphene on a marked chip with a 285nm SiO2 substrate. \nSetup:\n\tMonArk Glovebox Cataloger\nCamera:\n\tuEye fancy color settings"
+    },
+    "Marked Graphene (External Cataloger, TIS usable)": {
+        "File Name": "gmm_contrast_data_TIS_external_usable.json",
+        "Description": "Material: Graphene \nSpecifications:\n\tDetects mono- and bi- layer graphene on a marked chip with a 285nm SiO2 substrate. \nSetup:\n\tExternal/Sandbox Cataloger\nCamera:\n\tnew TIS camera"
     }
 }

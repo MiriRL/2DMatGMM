@@ -40,7 +40,7 @@ class TabDialog(QDialog):
         main_layout.addWidget(tab_widget)
         self.setLayout(main_layout)
         self.setWindowTitle("2DMatGMM")
-        self.resize(1000, 500)
+        self.resize(1000, 600)
 
 
 class InfoTab(QWidget):
