@@ -2,6 +2,7 @@ import os
 import json
 import cv2
 import time
+import numpy as np
 
 from pathlib import Path
 from PySide6.QtCore import QTimer
@@ -9,7 +10,7 @@ from PySide6.QtWidgets import QLabel, QProgressBar, QHBoxLayout, QWidget, QLabel
 
 from GMMDetector import MaterialDetector
 from Parameters import Parameters
-from demo_functions import visualise_flakes, remove_vignette
+from demo_functions import visualise_flakes, remove_vignette, calculate_background_color, check_median_background
 
 
 MODEL_DIR = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), "Models")
@@ -174,6 +175,18 @@ class DetectorManager(QWidget):
         if self.parameters.use_flatfield:
             image = remove_vignette(image, self.flatfield)
         
+            # Check if the image background is not the substrate color (requires a flatfield)
+            flatfield_color = calculate_background_color(self.flatfield, 10)
+            if check_median_background(image, flatfield_color):
+                print(f"Image {image_name} background color does not match flatfield. Skipping.")
+                # For debugging purposes, we save the image
+                cv2.imwrite(os.path.join(self.folder_path, "skipped_" + image_name), image)
+                # Move to the next image
+                self.curr_idx += 1
+                QTimer.singleShot(0, self.run_image)
+                return
+
+
         flakes = self.model.detect_flakes(image)
 
         if len(flakes) == 0:

@@ -76,3 +76,48 @@ def remove_vignette(
     image_no_vigentte = image / flatfield * cv2.mean(flatfield)[:-1]
     image_no_vigentte[image_no_vigentte > max_background_value] = max_background_value
     return np.asarray(image_no_vigentte, dtype=np.uint8)
+
+
+def calculate_background_color(img, radius=5):
+    masks = []
+
+    for i in range(3):
+        img_channel = img[:, :, i]
+        # Originally used a range (20, 230), but did not work with very bright/saturated backgrounds
+        mask = cv2.inRange(img_channel, 0, 255)  # Accept all colors as possible background
+        hist = cv2.calcHist([img_channel], [0], mask, [256], [0, 256])
+        hist_mode = np.argmax(hist)
+        thresholded_image = cv2.inRange(
+            img_channel, int(hist_mode - radius), int(hist_mode + radius)
+        )
+        background_mask_channel = cv2.erode(
+            thresholded_image, np.ones((3, 3)), iterations=3
+        )
+        masks.append(background_mask_channel)
+
+    final_mask = cv2.bitwise_and(masks[0], masks[1])
+    final_mask = cv2.bitwise_and(final_mask, masks[2])
+
+    return cv2.mean(img, mask=final_mask)[:3]
+
+def check_median_background(img, background_color, radius=10) -> bool:
+    """Check if the median color of the image is close to the background color. """
+    is_in_range = []
+    #debugging
+    color = []
+
+    for i in range(3):
+        img_channel = img[:, :, i]
+        mask = cv2.inRange(img_channel, 0, 255)  # Accept all colors as possible background
+        hist = cv2.calcHist([img_channel], [0], mask, [256], [0, 256])
+        median_color = np.argmax(hist)
+        color.append(median_color)
+        is_in_range.append(
+            abs(median_color - background_color[i]) <= radius
+        )
+    
+    if not np.any(is_in_range):
+        print(f"Median color: {color}  is not in range of background color: {background_color}.")
+    
+    return np.all(is_in_range)
+
