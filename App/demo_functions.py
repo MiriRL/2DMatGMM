@@ -100,8 +100,15 @@ def calculate_background_color(img, radius=5):
 
     return cv2.mean(img, mask=final_mask)[:3]
 
-def check_median_background(img, background_color, radius=10) -> bool:
-    """Check if the median color of the image is close to the background color. """
+def check_median_background(img, background_color, radius=40, percent_matching=0.6) -> bool:
+    """Check if the median color of the image is close to the background color. 
+    
+    Args:
+        img (np.ndarray): The input image.
+        background_color (tuple): The RGB color of the background to check against.
+        radius (int): The range around the background color to consider as a match.
+        percent_matching (float): The percentage of pixels that must match the background color."""
+    
     bg_color = np.array(background_color, dtype=np.uint8)
     range_array = np.array([radius] * 3, dtype=np.uint8)
 
@@ -116,6 +123,6 @@ def check_median_background(img, background_color, radius=10) -> bool:
     total_pixels = img.shape[0] * img.shape[1]
     matching_pixels = cv2.countNonZero(mask)
 
-    # Check if matching pixels exceed 60%
-    return (matching_pixels / total_pixels) > 0.6
+    # Check if the percentage of matching pixels is at or above the specified limit
+    return (matching_pixels / total_pixels) >= percent_matching
 
