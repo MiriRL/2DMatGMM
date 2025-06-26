@@ -102,22 +102,20 @@ def calculate_background_color(img, radius=5):
 
 def check_median_background(img, background_color, radius=10) -> bool:
     """Check if the median color of the image is close to the background color. """
-    is_in_range = []
-    #debugging
-    color = []
+    bg_color = np.array(background_color, dtype=np.uint8)
+    range_array = np.array([radius] * 3, dtype=np.uint8)
 
-    for i in range(3):
-        img_channel = img[:, :, i]
-        mask = cv2.inRange(img_channel, 0, 255)  # Accept all colors as possible background
-        hist = cv2.calcHist([img_channel], [0], mask, [256], [0, 256])
-        median_color = np.argmax(hist)
-        color.append(median_color)
-        is_in_range.append(
-            abs(median_color - background_color[i]) <= radius
-        )
-    
-    if not np.any(is_in_range):
-        print(f"Median color: {color}  is not in range of background color: {background_color}.")
-    
-    return np.all(is_in_range)
+    # Define lower and upper bounds
+    lower_bound = np.clip(bg_color - range_array, 0, 255)
+    upper_bound = np.clip(bg_color + range_array, 0, 255)
+
+    # Create mask where pixels are within the color range
+    mask = cv2.inRange(img, lower_bound, upper_bound)
+
+    # Count matching pixels
+    total_pixels = img.shape[0] * img.shape[1]
+    matching_pixels = cv2.countNonZero(mask)
+
+    # Check if matching pixels exceed 60%
+    return (matching_pixels / total_pixels) > 0.6
 
