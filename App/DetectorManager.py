@@ -47,6 +47,7 @@ class DetectorManager(QWidget):
         self.gmm_file_name = gmm_file_name
         self.images_dir = images_dir
         self.parameters = parameters
+        self.all_flakes = {} # A dictionary to store all the flakes detected in the images, with their file names as values.
 
         # Create a folder to save the images in
         database_dir = Path(os.path.join(self.images_dir, "..", "2DMatGMMoutput"))
@@ -162,6 +163,7 @@ class DetectorManager(QWidget):
 
     def run_image(self):
         if self.curr_idx >= self.total_images:
+            self.save_flake_data()
             self.run_button.setEnabled(True)
             self.debugging_label.setText("")
             self.progress_text.setText("Process complete.")
@@ -189,6 +191,9 @@ class DetectorManager(QWidget):
 
 
         flakes = self.model.detect_flakes(image)
+        for flake in flakes:
+            self.all_flakes[flake] = image_name  # Store the flake with its image name
+        # blank_image = image.copy()
 
         if len(flakes) == 0:
             print(f"No flakes detected in {image_name}. Skipping.")
@@ -217,3 +222,20 @@ class DetectorManager(QWidget):
         QTimer.singleShot(0, self.run_image)
 
 
+    def save_flake_data(self):
+        """ Saves the detected flakes to a JSON file in the output folder. """
+        if not self.all_flakes:
+            print("No flakes detected. Skipping saving.")
+            return
+        
+        #TODO: Add another method to check material
+        flake_data: dict = {
+            "flakes": [flake.to_database_dict(self.all_flakes[flake], "Graphene") for flake in self.all_flakes],
+            "parameters": self.parameters.to_dict(),
+        }
+
+        output_file_path = self.folder_path / "flakes_data.json"
+        with open(output_file_path, "w") as f:
+            json.dump(flake_data, f, indent=4)
+
+        print(f"Saved flake data to {output_file_path}")

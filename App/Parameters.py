@@ -33,6 +33,15 @@ class Parameters:
 
     def get_size(self):
         return self.size_threshold
+    
+    def to_dict(self):
+        return {
+            "size_threshold": self.size_threshold,
+            "min_confidence": self.min_confidence,
+            "use_flatfield": self.use_flatfield,
+            "flatfield_path": self.flatfield_path,
+            "save_to_database": self.save_to_database
+        }
 
 class ParametersWidget(QGroupBox):
     def __init__(self, parent = None):

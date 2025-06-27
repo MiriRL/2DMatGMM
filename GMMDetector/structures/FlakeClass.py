@@ -62,6 +62,26 @@ class Flake:
             "false_positive_probability": self.false_positive_probability,
             "entropy": self.entropy,
         }
+    
+    def to_database_dict(self, file_name, material) -> dict:
+        """
+        Convert the flake object to a dictionary with shortened keys.
+
+        Returns:
+            dict: A dictionary representation of the flake object with shortened keys.
+        """
+        return {
+            "file_name": file_name,
+            "material": material,
+            "thickness": self.thickness,
+            "size": self.size,
+            "center": self.center,
+            "max_sidelength": self.max_sidelength,
+            "min_sidelength": self.min_sidelength,
+            "aspect_ratio": self.aspect_ratio,
+            "false_positive_probability": self.false_positive_probability,
+            "entropy": self.entropy,
+        }
 
     def __repr__(self) -> str:
         """The string representation of the flake object.
