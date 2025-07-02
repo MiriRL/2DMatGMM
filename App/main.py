@@ -68,6 +68,7 @@ class DetectorTab(QWidget):
         # Placeholder for selected variables
         self.selected_folder_path = None
         self.curr_model_is_valid = False
+        self.curr_user = None
         
         # Get the models_info file from one level up in the Models folder
         parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))

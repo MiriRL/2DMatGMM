@@ -2,11 +2,14 @@ import json
 import os
 
 from PySide6.QtWidgets import QDialog, QLabel, QListWidget, QPushButton, QVBoxLayout, QWidget, QDialogButtonBox,QListWidgetItem, QInputDialog, QMessageBox, QHBoxLayout
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 
 USERS_JSON = "user_list.json"
 
 class UsernameWidget(QWidget):
+    """A widget that allows the user to select a username from a list or create a new one."""
+    user_selected = Signal(str)
+
     def __init__(self, parent: QWidget = None):
         super().__init__(parent)
 
@@ -25,8 +28,13 @@ class UsernameWidget(QWidget):
             # Update the button text with the selected username
             if username:
                 self.button.setText(f"{username}")
+                if username == "No User" or username == "User list not retrieved":
+                    self.user_selected.emit(None)  # If the default user or error user is selected, emit None
+                else:
+                    self.user_selected.emit(username)  # If a valid user is selected, emit the username
             else:
                 self.button.setText("Select User")
+                self.user_selected.emit(None)  # If no user is selected, emit None
 
 class UsernameWindow(QDialog):
     def __init__(self, parent: QWidget):
@@ -90,6 +98,8 @@ class UsernameWindow(QDialog):
         self.username_label.setText(f"Selected User: {item.text()}")
 
     def update_user_list(self):
+        # Sort the user list alphabetically then overwrite the json with the new list
+        self.user_list.sort(key=str.lower)  # Sort case-insensitively
         with open(self.users_path, "w") as f:
             json.dump(self.user_list, f)
 
@@ -98,7 +108,7 @@ class UsernameWindow(QDialog):
 
         if ok and self.check_valid_username(username):
             self.user_list.append(username)
-            self.username_input.addItem(username)
+            self.username_input.insertItem(1, username)  # Insert at position 1 to keep "No User" at the top
             self.update_user_list()
 
     def check_valid_username(self, username: str) -> bool:
