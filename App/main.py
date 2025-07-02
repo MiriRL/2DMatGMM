@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
 )
 
 from Parameters import ParametersWidget
+from UsernameWindow import UsernameWidget
 from  DetectorManager import DetectorManager
 from Database import DatabaseTab
 
@@ -77,6 +78,11 @@ class DetectorTab(QWidget):
         title_font = QFont()
         title_font.setBold(True)
         title_font.setPointSize(14)
+
+        # Select user
+        select_user_label = QLabel("Select User:")
+        select_user_label.setFont(title_font)
+        select_user_widget = UsernameWidget(self)
 
         # User selects the folder directly containing the images to be processed
         select_file_label = QLabel("Select the folder containing the images:")
@@ -140,6 +146,8 @@ class DetectorTab(QWidget):
         self.detector = DetectorManager(self.debugging_text, self.run_button)
 
         main_layout = QVBoxLayout()
+        main_layout.addWidget(select_user_label)
+        main_layout.addWidget(select_user_widget)
         main_layout.addWidget(select_file_label)
         main_layout.addWidget(self.browse_file_button)
         main_layout.addWidget(select_model_label)
