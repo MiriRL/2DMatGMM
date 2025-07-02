@@ -1,7 +1,7 @@
 import json
 import os
 
-from PySide6.QtWidgets import QDialog, QLabel, QListWidget, QPushButton, QVBoxLayout, QWidget, QDialogButtonBox,QListWidgetItem, QInputDialog, QMessageBox
+from PySide6.QtWidgets import QDialog, QLabel, QListWidget, QPushButton, QVBoxLayout, QWidget, QDialogButtonBox,QListWidgetItem, QInputDialog, QMessageBox, QHBoxLayout
 from PySide6.QtCore import Qt
 
 USERS_JSON = "user_list.json"
@@ -21,9 +21,10 @@ class UsernameWidget(QWidget):
     def open_username_window(self):
         dialog = UsernameWindow(self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            username = dialog.username_input.text()
+            username = dialog.username_input.currentItem().text() if dialog.username_input.currentItem() else None
+            # Update the button text with the selected username
             if username:
-                self.button.setText(f"User: {username}")
+                self.button.setText(f"{username}")
             else:
                 self.button.setText("Select User")
 
@@ -44,8 +45,6 @@ class UsernameWindow(QDialog):
         # Populate the list with usernames from the Users json file in App
         parent_dir = os.path.abspath(os.path.dirname(__file__))
         self.users_path = os.path.join(parent_dir, USERS_JSON)
-        with open(self.users_path, "w") as f:
-            json.dump(["dummy user", "dummy user 2"], f)
         
         try:
             self.user_list = json.load(open(self.users_path, "r"))
@@ -59,6 +58,14 @@ class UsernameWindow(QDialog):
         self.add_user_button = QPushButton("Add new user")
         self.add_user_button.clicked.connect(self.add_new_user)
         self.remove_user_button = QPushButton("Remove user")
+        self.remove_user_button.clicked.connect(self.remove_user)
+
+        # A horizontal layout for the edit user list buttons
+        h_layout = QHBoxLayout()
+        h_layout.addWidget(self.add_user_button)
+        h_layout.addWidget(self.remove_user_button)
+        edit_container = QWidget()
+        edit_container.setLayout(h_layout)
 
         QBtn = (
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel
@@ -71,6 +78,7 @@ class UsernameWindow(QDialog):
         layout = QVBoxLayout()
         layout.addWidget(self.username_label)
         layout.addWidget(self.username_input)
+        layout.addWidget(edit_container)
         layout.addWidget(self.buttonBox)
 
         self.setLayout(layout)
@@ -86,12 +94,28 @@ class UsernameWindow(QDialog):
             json.dump(self.user_list, f)
 
     def add_new_user(self):
-        username, ok = QInputDialog.getText(self, "Create new user", "Enter username:")
+        username, ok = QInputDialog.getText(self, "Create new user. Use only letters, numbers, and underscores. No spaces.", "Enter username:")
 
-        if ok and username and username not in self.user_list:
+        if ok and self.check_valid_username(username):
             self.user_list.append(username)
             self.username_input.addItem(username)
             self.update_user_list()
+
+    def check_valid_username(self, username: str) -> bool:
+        """Check if the username is valid (not empty, not already in the list, and usable as a file name)."""
+        if not username:
+            QMessageBox.warning(self, "Warning", "Username cannot be empty.")
+            return False
+        if username in self.user_list:
+            QMessageBox.warning(self, "Warning", f"Username '{username}' already exists.")
+            return False
+        if not username.isidentifier():
+            QMessageBox.warning(self, "Warning", f"Username '{username}' is not a valid username. Only letters, numbers, and underscores are allowed.")
+            return False
+        if len(username) > 20:
+            QMessageBox.warning(self, "Warning", "Username cannot be longer than 20 characters.")
+            return False
+        return True
 
     def remove_user(self):
         username = self.username_input.currentItem().text()
