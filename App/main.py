@@ -84,6 +84,7 @@ class DetectorTab(QWidget):
         select_user_label = QLabel("Select User:")
         select_user_label.setFont(title_font)
         select_user_widget = UsernameWidget(self)
+        select_user_widget.user_selected.connect(self.update_user)
 
         # User selects the folder directly containing the images to be processed
         select_file_label = QLabel("Select the folder containing the images:")
@@ -164,6 +165,9 @@ class DetectorTab(QWidget):
         self.setLayout(main_layout)
         
 
+    def update_user(self, username):
+        self.curr_user = username
+    
     # Function written by ChatGPT
     def browse_file(self):
         folder_path = QFileDialog.getExistingDirectory(self, "Select Folder")
