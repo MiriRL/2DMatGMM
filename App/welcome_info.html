@@ -1,9 +1,25 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <style>
+    .large-text {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
 <body>
-    <pre>
-        <center> <h1> Welcome to the External Optical Cataloger </h1> </center>
-        <p>blah blah blah information here blah blah blah</p>
-    </pre>
+    <center> <h1 style="font-size: 28px;"> Welcome to the External Optical Cataloger </h1> </center>
+    <p class="large-text">Ref from Jan-Lucas Uslu</p>
+    <h2>Detect Flakes</h2>
+    <p class="large-text"> To utilize the GMM Detector, go to the <i>Detect Flakes</i> tab. <br> To use the flake identifier, you must have the following: </p>
+    <ol class="large-text">
+        <li>A folder with your images. Images must be in either tif, png, or jpg format.</li>
+        <li>A prepared model for the material you want to use. Please make sure all model details match the setup used for imaging.</li>
+        <li>A flatfield image of the plain substrate.</li>
+    </ol>
+    <p class="large-text"><u>Flatfield specifications:</u> <br>Do not use a substrate image with large objects in view. Small particles in the image may be unavoidable, and should not affect the detection significantly. Do not use a cropped image. The flatfield image should be the same color as the substrate of the chip of interest. The flatfield image should be taken on the same setup the detection is run on.</p>
+    <h2>Database</h2>
+    <p class="large-text"> To utilize the database, go to the <i>Database</i> tab. <br> The database interface is not currently implemented. If you choose to save to the database, detected flakes will be saved in Box in <i>Quantum Device Lab > External Optical Cataloger</i>. If you do not choose this option, detected flakes will be saved in a folder named <i>2DMatGMMoutput</i> in the same place the input image folder was saved.</p>
 </body>
 </html>

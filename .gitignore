@@ -25,3 +25,7 @@ Datasets/GMMDetectorDatasets/
 
 # Dont commit the user list
 App/user_list.json
+
+# Dont commit the app builds
+dist/
+*.spec

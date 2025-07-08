@@ -15,6 +15,8 @@ from PySide6.QtWidgets import (
     QPushButton,
     QFrame,
     QFileDialog,
+    QScrollArea,
+    QSizePolicy
 )
 
 from Parameters import ParametersWidget
@@ -56,8 +58,13 @@ class InfoTab(QWidget):
         with open(info_path, 'r', encoding='utf-8') as file:
             info.setText(file.read())
 
+        # scroll_area = QScrollArea()
+        # scroll_area.setWidget(info)
+        # scroll_area.setWidgetResizable(True)
+        # info.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+
         layout = QVBoxLayout()
-        layout.addWidget(info)
+        layout.addWidget(info, alignment=Qt.AlignmentFlag.AlignTop)
         self.setLayout(layout)
 
 

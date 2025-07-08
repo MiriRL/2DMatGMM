@@ -184,7 +184,7 @@ class DetectorManager(QWidget):
             flatfield_color = calculate_background_color(self.flatfield, 10)
             if not check_median_background(image, flatfield_color):
                 print(f"Image {image_name} background color does not match flatfield. Skipping.")
-                
+
                 # For debugging purposes, you can the image and see what is skipped
                 # cv2.imwrite(os.path.join(self.folder_path, "skipped_" + image_name), image)
                 
@@ -231,7 +231,9 @@ class DetectorManager(QWidget):
     def save_flake_data(self):
         """ Saves the detected flakes to a JSON file in the output folder. """
         if not self.all_flakes:
-            print("No flakes detected. Skipping saving.")
+            message = "No flakes detected. Skipping saving."
+            self.debugging_label.setText(message)
+            print(message)
             return
         
         #TODO: Add another method to check material
