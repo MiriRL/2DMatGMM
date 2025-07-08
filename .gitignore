@@ -22,3 +22,6 @@ Datasets/GMMDetectorDatasets/
 
 # dont commit mac ds_store files
 **/.DS_Store
+
+# Dont commit the user list
+App/user_list.json
