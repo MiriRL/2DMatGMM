@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 class Parameters:
     def __init__(
             self,
-            size_threshold: int = 1000,
+            size_threshold: int = 500,
             min_confidence: float = 0.0,
             use_flatfield: bool = False,
             flatfield_path: str = "",
