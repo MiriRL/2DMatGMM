@@ -45,10 +45,7 @@ def get_contrasts_from_img(
         image = remove_vignette(image, flatfield)
 
     flake_color = np.array(image[mask != 0])
-    if use_flatfield and flatfield_path is not None:
-        background_color = np.array(calculate_background_color(flatfield, 10))
-    else:
-        background_color = np.array(calculate_background_color(image, 10))
+    background_color = np.array(calculate_background_color(image, 10))
 
     if np.any(background_color == 0):
         print(f"Error with image {mask_name}; Invalid Background, skipping")
