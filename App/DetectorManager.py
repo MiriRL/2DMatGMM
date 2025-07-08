@@ -136,7 +136,7 @@ class DetectorManager(QWidget):
                 self.images.append(image)
                 self.image_names.append(image_name)
             case str() if image_path.endswith((".tif", ".tiff")):
-                message = f"Reading multi-page TIFF image {image_name}..."
+                message = f"Reading TIFF image {image_name}..."
                 print(message)
                 self.debugging_label.setText(message)
                 # Use cv2.imreadmulti to read multi-page TIFF images
@@ -157,6 +157,8 @@ class DetectorManager(QWidget):
                 print(message)
         
         self.curr_idx += 1
+        self.progress_text.setText(str(self.curr_idx) + " / " + str(self.total_images) + " images processed")
+        self.progress_bar.setValue(self.curr_idx)
         QTimer.singleShot(0, self.prepare_images)
 
 
@@ -167,6 +169,7 @@ class DetectorManager(QWidget):
             self.run_button.setEnabled(True)
             self.debugging_label.setText("")
             self.progress_text.setText("Process complete.")
+            self.progress_bar.setValue(self.total_images)
             print("Finished")
             return
         
@@ -181,11 +184,14 @@ class DetectorManager(QWidget):
             flatfield_color = calculate_background_color(self.flatfield, 10)
             if not check_median_background(image, flatfield_color):
                 print(f"Image {image_name} background color does not match flatfield. Skipping.")
+                
                 # For debugging purposes, you can the image and see what is skipped
                 # cv2.imwrite(os.path.join(self.folder_path, "skipped_" + image_name), image)
                 
                 # Move to the next image
                 self.curr_idx += 1
+                self.progress_text.setText(str(self.curr_idx) + " / " + str(self.total_images) + " images processed")
+                self.progress_bar.setValue(self.curr_idx)
                 QTimer.singleShot(0, self.run_image)
                 return
 

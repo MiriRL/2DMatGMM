@@ -109,15 +109,15 @@ def check_median_background(img, background_color, radius=40, percent_matching=0
         radius (int): The range around the background color to consider as a match.
         percent_matching (float): The percentage of pixels that must match the background color."""
     
-    bg_color = np.array(background_color, dtype=np.uint8)
-    range_array = np.array([radius] * 3, dtype=np.uint8)
+    bg_color = np.array(background_color)
+    range_array = np.array([radius] * 3)
 
     # Define lower and upper bounds
-    lower_bound = np.clip(bg_color - range_array, 0, 255)
-    upper_bound = np.clip(bg_color + range_array, 0, 255)
+    lower_bound = np.maximum(bg_color - range_array, 0)
+    upper_bound = np.minimum(bg_color + range_array, 255)
 
     # Create mask where pixels are within the color range
-    mask = cv2.inRange(img, lower_bound, upper_bound)
+    mask = cv2.inRange(img, lower_bound.astype(np.uint8), upper_bound.astype(np.uint8))
 
     # Count matching pixels
     total_pixels = img.shape[0] * img.shape[1]
