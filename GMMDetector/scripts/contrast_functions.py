@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 import os
 
 from App.demo_functions import calculate_background_color, remove_vignette
@@ -58,3 +59,47 @@ def get_contrasts_from_img(
     contrasts = np.array(contrasts)
 
     return contrasts
+
+def create_histogram_plots(image_contrast_dict):
+    """
+    Display RGB histograms stacked vertically above each image using OpenCV for image loading.
+
+    Parameters:
+    - image_contrast_dict (dict): A dictionary where keys are image file paths,
+      and values are NumPy arrays of RGB values used for contrast analysis.
+    """
+
+    for image_path, contrast_data in image_contrast_dict.items():
+        # Ensure data is a NumPy array
+        contrast_data = np.asarray(contrast_data)
+
+        # Load the image using cv2 (BGR by default), then convert to RGB
+        image_bgr = cv2.imread(image_path)
+        if image_bgr is None:
+            print(f"Warning: Could not load image at {image_path}")
+            continue
+        image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
+
+        # Create figure with 4 vertically stacked plots (3 histograms + 1 image)
+        fig, axs = plt.subplots(4, 1, figsize=(8, 10), gridspec_kw={'height_ratios': [1, 1, 1, 3]})
+        fig.suptitle(f"Image and RGB Histograms", fontsize=14)
+
+        # Channel info
+        channel_colors = ['red', 'green', 'blue']
+        channel_names = ['Red', 'Green', 'Blue']
+
+        for i in range(3):
+            axs[i].hist(contrast_data[:, i], bins=256, color=channel_colors[i], alpha=0.8)
+            axs[i].set_ylabel(f'{channel_names[i]}')
+            axs[i].set_xlim(0, 255)  # keep x-range fixed for RGB values
+            axs[i].set_xticks([])
+            axs[i].set_yticks([])  # Optional: remove this line if you want to see tick values
+
+
+        # Show the image
+        axs[3].imshow(image_rgb)
+        axs[3].axis('off')
+
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.92)  # Make room for title
+        plt.show()

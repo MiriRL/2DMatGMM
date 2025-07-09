@@ -101,7 +101,7 @@ def calculate_background_color(img, radius=5):
     return cv2.mean(img, mask=final_mask)[:3]
 
 def check_median_background(img, background_color, radius=40, percent_matching=0.6) -> bool:
-    """Check if the median color of the image is close to the background color. 
+    """Check if the median color of the image is close to the background color. Returns true if there is a matching background color within the radius.
     
     Args:
         img (np.ndarray): The input image.
