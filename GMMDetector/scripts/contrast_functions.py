@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import os
 
 from App.demo_functions import calculate_background_color, remove_vignette
+from sklearn.mixture import GaussianMixture
 
 def get_contrasts_from_img(
     image_path,
@@ -60,9 +61,9 @@ def get_contrasts_from_img(
 
     return contrasts
 
-def create_histogram_plots(image_contrast_dict, bins=50):
+def create_histogram_plots(image_contrast_dict, bins=100):
     """
-    Display RGB histograms stacked vertically above each image using OpenCV for image loading.
+    Display BGR histograms stacked vertically above each image using OpenCV for image loading.
 
     Parameters:
     - image_contrast_dict (dict): A dictionary where keys are image file paths,
@@ -70,30 +71,80 @@ def create_histogram_plots(image_contrast_dict, bins=50):
     """
 
     for image_path, contrast_data in image_contrast_dict.items():
-        # Ensure data is a NumPy array
-        print(contrast_data)
-
         # Load the image using cv2 (BGR by default), then convert to RGB
         image_bgr = cv2.imread(image_path)
         if image_bgr is None:
             print(f"Warning: Could not load image at {image_path}")
             continue
-        image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
+        image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)  # For displaying the image properly
 
         # Create figure with 4 vertically stacked plots (3 histograms + 1 image)
         fig, axs = plt.subplots(4, 1, figsize=(8, 10), gridspec_kw={'height_ratios': [1, 1, 1, 3]})
-        fig.suptitle(f"Image and RGB Histograms", fontsize=14)
+        fig.suptitle(f"RGB Histograms", fontsize=14)
 
         # Channel info
-        channel_colors = ['red', 'green', 'blue']
-        channel_names = ['Red', 'Green', 'Blue']
+        channel_colors = ['blue', 'green', 'red']
+        channel_names = ['Blue', 'Green', 'Red']
 
         for i in range(3):
-            axs[i].hist(contrast_data[:, i], bins=bins, density=True)
-            axs[i].set_ylabel(f'{channel_names[i]}')
-            axs[i].set_xticks([])
-            axs[i].set_yticks([])  # Optional: remove this line if you want to see tick values
-            axs[i].grid()
+            data = contrast_data[:, i].reshape(-1)
+
+            # Autoscale: define bin edges based on data min/max with padding
+            data_min, data_max = data.min(), data.max()
+            range_padding = (data_max - data_min) * 0.1 if data_max != data_min else 0.1
+            x_min = data_min - range_padding
+            x_max = data_max + range_padding
+
+            # Histogram bins and density
+            bins = np.linspace(x_min, x_max, 100)
+            counts, bin_edges = np.histogram(data, bins=bins)
+            bin_widths = np.diff(bin_edges)
+            # Normalize
+            total_count = np.sum(counts)
+            with np.errstate(divide='ignore', invalid='ignore'):
+                density = np.divide(counts, total_count * bin_widths, 
+                                    out=np.zeros_like(counts, dtype=float), 
+                                    where=bin_widths > 0)
+
+            # Plot histogram
+            axs[i].bar(bin_edges[:-1], density, width=bin_widths, color=channel_colors[i], alpha=0.6, align='edge', edgecolor='black')
+            axs[i].set_xlim(x_min, x_max)
+            axs[i].set_ylabel(f'{channel_names[i]} Count')
+
+            # Fit 2-Gaussian GMM
+            gmm = GaussianMixture(n_components=2, random_state=0)
+            gmm.fit(data.reshape(-1, 1))
+
+            # Overlay Gaussian PDFs and then annotate peaks
+            x_vals = np.linspace(x_min, x_max, 512).reshape(-1, 1)
+            for mean, std, weight in zip(gmm.means_.flatten(), 
+                                        np.sqrt(gmm.covariances_).flatten(), 
+                                        gmm.weights_.flatten()):
+                pdf = weight * (1 / (std * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x_vals - mean) / std) ** 2)
+                axs[i].plot(x_vals, pdf, color=channel_colors[i], linewidth=2)
+
+            means = gmm.means_.flatten()
+            # Draw vertical lines at peaks
+            for mean in means:
+                axs[i].axvline(x=mean, color='black', linestyle=':', linewidth=1.5)
+
+            # Annotate means with their x-values
+            for mean in means:
+                axs[i].text(mean, axs[i].get_ylim()[1]*0.85, f"{mean:.3f}",
+                            rotation=90, va='bottom', ha='center',
+                            fontsize=9, color='black', backgroundcolor='white')
+
+            # If exactly two peaks, calculate and display their difference
+            if len(means) == 2:
+                peak_diff = abs(means[0] - means[1])
+                axs[i].text(0.95, 0.95, f"Δ peaks = {peak_diff:.3f}",
+                            transform=axs[i].transAxes,
+                            ha='right', va='top',
+                            fontsize=10,
+                            bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
+
+            if i == 2:
+                axs[i].set_xlabel("Contrast Value")
 
 
         # Show the image
