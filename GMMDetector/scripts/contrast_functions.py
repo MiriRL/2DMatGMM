@@ -71,7 +71,7 @@ def create_histogram_plots(image_contrast_dict):
 
     for image_path, contrast_data in image_contrast_dict.items():
         # Ensure data is a NumPy array
-        contrast_data = np.asarray(contrast_data)
+        print(contrast_data)
 
         # Load the image using cv2 (BGR by default), then convert to RGB
         image_bgr = cv2.imread(image_path)
