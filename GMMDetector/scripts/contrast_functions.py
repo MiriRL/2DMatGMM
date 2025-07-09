@@ -60,7 +60,7 @@ def get_contrasts_from_img(
 
     return contrasts
 
-def create_histogram_plots(image_contrast_dict):
+def create_histogram_plots(image_contrast_dict, bins=50):
     """
     Display RGB histograms stacked vertically above each image using OpenCV for image loading.
 
@@ -89,11 +89,11 @@ def create_histogram_plots(image_contrast_dict):
         channel_names = ['Red', 'Green', 'Blue']
 
         for i in range(3):
-            axs[i].hist(contrast_data[:, i], bins=256, color=channel_colors[i], alpha=0.8)
+            axs[i].hist(contrast_data[:, i], bins=bins, density=True)
             axs[i].set_ylabel(f'{channel_names[i]}')
-            axs[i].set_xlim(0, 255)  # keep x-range fixed for RGB values
             axs[i].set_xticks([])
             axs[i].set_yticks([])  # Optional: remove this line if you want to see tick values
+            axs[i].grid()
 
 
         # Show the image
