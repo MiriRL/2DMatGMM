@@ -69,7 +69,7 @@ def get_contrasts_from_dir(
 def remove_vignette(
     image,
     flatfield,
-    max_background_value: int = 241,
+    max_background_value: int = 255,
 ):
     """Removes the Vignette from the Image
 

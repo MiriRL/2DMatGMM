@@ -10,5 +10,9 @@
     "Marked Graphene (External Cataloger, TIS usable)": {
         "File Name": "gmm_contrast_data_TIS_external_usable.json",
         "Description": "Material: Graphene \nSpecifications:\n\tDetects mono- and bi- layer graphene on a marked chip with a 285nm SiO2 substrate. \nSetup:\n\tExternal/Sandbox Cataloger\nCamera:\n\tnew TIS camera"
+    },
+    "Mono-layer WSe2 Test": {
+        "File Name": "gmm_contrast_data_mono_WSe2.json",
+        "Description": "Material: WSe2 \nSpecifications:\n\tDetects mono-layer WSe2 on an unmarked chip with a 285nm SiO2 substrate. \nSetup:\n\tMonArk Glovebox Cataloger\nCamera:\n\tnew TIS camera"
     }
 }
