@@ -10,7 +10,7 @@ def get_contrasts_from_img(
     image_path,
     mask_path,
     flatfield_path=None,
-    use_flatfield=True,
+    use_flatfield=False
 ):
     contrasts = []
 
@@ -61,7 +61,7 @@ def get_contrasts_from_img(
 
     return contrasts
 
-def create_histogram_plots(image_contrast_dict, bins=100):
+def create_histogram_plots(image_contrast_dict, bins=100, save_results=False, results_dir=None):
     """
     Display BGR histograms stacked vertically above each image using OpenCV for image loading.
 
@@ -77,10 +77,11 @@ def create_histogram_plots(image_contrast_dict, bins=100):
             print(f"Warning: Could not load image at {image_path}")
             continue
         image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)  # For displaying the image properly
+        file_name = os.path.basename(image_path)
 
         # Create figure with 4 vertically stacked plots (3 histograms + 1 image)
         fig, axs = plt.subplots(4, 1, figsize=(8, 10), gridspec_kw={'height_ratios': [1, 1, 1, 3]})
-        fig.suptitle(f"RGB Histograms", fontsize=14)
+        fig.suptitle(f"{file_name}: Color contrast histograms", fontsize=14)
 
         # Channel info
         channel_colors = ['blue', 'green', 'red']
@@ -154,3 +155,11 @@ def create_histogram_plots(image_contrast_dict, bins=100):
         plt.tight_layout()
         plt.subplots_adjust(top=0.92)  # Make room for title
         plt.show()
+
+        if save_results:
+            # Save the figure
+            os.makedirs(results_dir, exist_ok=True)
+            assert os.path.exists(results_dir), f"Results directory {results_dir} does not exist"
+            graph_name = file_name.replace('.png', '_histogram.png').replace('.jpg', '_histogram.png').replace('.tif', '_histogram.png')  # Makes the graph a png file
+            fig.savefig(os.path.join(results_dir, graph_name), bbox_inches='tight')
+            print(f"Saved histogram plot to {results_dir}")
