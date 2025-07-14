@@ -58,11 +58,6 @@ class InfoTab(QWidget):
         with open(info_path, 'r', encoding='utf-8') as file:
             info.setText(file.read())
 
-        # scroll_area = QScrollArea()
-        # scroll_area.setWidget(info)
-        # scroll_area.setWidgetResizable(True)
-        # info.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
-
         layout = QVBoxLayout()
         layout.addWidget(info, alignment=Qt.AlignmentFlag.AlignTop)
         self.setLayout(layout)
