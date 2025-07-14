@@ -73,7 +73,6 @@ class DetectorManager(QWidget):
             raise FileNotFoundError(message)
         contrast_dict = json.load(open(gmm_file_path, "r"))
         
-        # TODO: add options to change the size threshold
         self.model: MaterialDetector = None
         try:
             self.model = MaterialDetector(
