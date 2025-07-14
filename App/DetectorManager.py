@@ -35,7 +35,7 @@ class DetectorManager(QWidget):
 
 
     def run_detector(self, gmm_file_name, images_dir, parameters: Parameters):
-        """ Calls the 2DMatGMM detector as shown in the demo. Runs in a seperate thread so the UI can update.\n
+        """ Calls the 2DMatGMM detector as shown in the demo.\n
 
         gmm_file_name: name of the constrast model parameters json file. Should be stored in the Models folder.\n
         images_dir: Directory path to the folder containing the images to be run through the model. Should be in __png__ format.\n
