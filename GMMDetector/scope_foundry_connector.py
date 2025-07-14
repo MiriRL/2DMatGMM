@@ -8,8 +8,7 @@ PATH_TO_SCOPE_FOUNDRY = Path("C:/Users/Darcey/Documents/scopefoundry_apps/monark
 FILE_OUTPUT_NAME = Path("flake_data.json")
 
 from GMMDetector import MaterialDetector
-from Parameters import Parameters
-from demo_functions import visualise_flakes, remove_vignette, calculate_background_color, check_median_background
+from scripts.demo_functions import remove_vignette, calculate_background_color, check_median_background
 
 MODEL_DIR = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), "Models")
 
@@ -48,7 +47,7 @@ def run_detector(params):
 
 def run_model(
     images_dir: Path,
-    model_name: str = None,
+    model_name,
     size_threshold: int = 500,
     min_confidence: float = 0.0,
     use_flatfield: bool = False,
@@ -87,7 +86,7 @@ def run_model(
     for name in image_file_names:
         image_path = os.path.join(images_dir, name)
 
-        if image_path.endswith((".png", ".jpg", ".jpeg")):
+        if image_path.endswith((".png", ".jpg", ".jpeg", ".tif", ".tiff")):
             image = cv2.imread(image_path)
         else: 
             message = f"Unsupported image format for {name}. Skipping."
