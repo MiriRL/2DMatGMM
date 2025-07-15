@@ -8,17 +8,9 @@ from sklearn.mixture import GaussianMixture
 
 def get_contrasts_from_img(
     image_path,
-    mask_path,
-    flatfield_path=None,
-    use_flatfield=False
+    mask_path
 ):
     contrasts = []
-
-    if use_flatfield and flatfield_path is not None:
-        flatfield = cv2.imread(flatfield_path)
-        assert (
-            flatfield is not None
-        ), f"Could not load flatfield at '{flatfield_path}', have you selected the correct path?"
 
     mask_name = os.path.basename(mask_path)
 
@@ -43,14 +35,13 @@ def get_contrasts_from_img(
     if cv2.countNonZero(mask) < 10:
         return None
 
-    if use_flatfield and flatfield_path is not None:
-        image = remove_vignette(image, flatfield)
-
     flake_color = np.array(image[mask != 0])
-    background_color = np.array(calculate_background_color(image, 10))
+    bg_color = calculate_background_color(image, 10)
+    
+    background_color = np.array(bg_color)
 
     if np.any(background_color == 0):
-        print(f"Error with image {mask_name}; Invalid Background, skipping")
+        print(f"Error with image {os.path.basename(image_path)}; Invalid Background {bg_color}, skipping")
         return None
 
     flake_contrast = (flake_color / background_color) - 1
@@ -61,7 +52,7 @@ def get_contrasts_from_img(
 
     return contrasts
 
-def create_histogram_plots(image_contrast_dict, bins=100, save_results=False, results_dir=None):
+def create_histogram_plots(image_contrast_dict, num_components=2, bins=100, save_results=False, results_dir=None):
     """
     Display BGR histograms stacked vertically above each image using OpenCV for image loading.
 
@@ -88,6 +79,9 @@ def create_histogram_plots(image_contrast_dict, bins=100, save_results=False, re
         channel_names = ['Blue', 'Green', 'Red']
 
         for i in range(3):
+            if contrast_data is None:
+                # If the contrast data was invalid, we skip it
+                break
             data = contrast_data[:, i].reshape(-1)
 
             # Autoscale: define bin edges based on data min/max with padding
@@ -113,7 +107,7 @@ def create_histogram_plots(image_contrast_dict, bins=100, save_results=False, re
             axs[i].set_ylabel(f'{channel_names[i]} Count')
 
             # Fit 2-Gaussian GMM
-            gmm = GaussianMixture(n_components=2, random_state=0)
+            gmm = GaussianMixture(n_components=num_components, random_state=0)
             gmm.fit(data.reshape(-1, 1))
 
             # Overlay Gaussian PDFs and then annotate peaks
