@@ -98,6 +98,18 @@ def calculate_background_color(img, radius=5):
     final_mask = cv2.bitwise_and(masks[0], masks[1])
     final_mask = cv2.bitwise_and(final_mask, masks[2])
 
+    if cv2.countNonZero(final_mask) == 0:
+        # Try a more robust method of combining masks for noisy or saturated backgrounds
+        final_mask = (
+            ((masks[0] > 0).astype(np.uint8) +
+            (masks[1] > 0).astype(np.uint8) +
+            (masks[2] > 0).astype(np.uint8)) >= 2
+        ).astype(np.uint8) * 255
+        print("Warning: Background is saturated or noisy. Trying a more tolerant calculation.")
+        # If it is still empty, print a warning
+        if cv2.countNonZero(final_mask) == 0:
+            print("Warning: No background pixels found. Background color will return (0.0, 0.0, 0.0).")
+
     return cv2.mean(img, mask=final_mask)[:3]
 
 def check_median_background(img, background_color, radius=40, percent_matching=0.6) -> bool:
