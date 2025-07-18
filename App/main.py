@@ -208,7 +208,7 @@ class DetectorTab(QWidget):
             curr_model = self.models[self.models_list_box.currentText()]
             model_file_name = curr_model["File Name"]
             
-            self.detector.run_detector(model_file_name, self.selected_folder_path, self.parameters_widget.get_parameters())
+            self.detector.run_detector(model_file_name, self.selected_folder_path, self.parameters_widget.get_parameters(), self.curr_user)
         else:
             self.debugging_text.setText("Selected model or selected folder are not valid.")
 

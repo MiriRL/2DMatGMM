@@ -34,7 +34,7 @@ class DetectorManager(QWidget):
         self.setVisible(False)
 
 
-    def run_detector(self, gmm_file_name, images_dir, parameters: Parameters):
+    def run_detector(self, gmm_file_name, images_dir, parameters: Parameters, current_user):
         """ Calls the 2DMatGMM detector as shown in the demo.\n
 
         gmm_file_name: name of the constrast model parameters json file. Should be stored in the Models folder.\n
@@ -47,6 +47,7 @@ class DetectorManager(QWidget):
         self.gmm_file_name = gmm_file_name
         self.images_dir = images_dir
         self.parameters = parameters
+        self.curr_user = current_user
         self.all_flakes = {} # A dictionary to store all the flakes detected in the images, with their file names as values.
 
         # Create a folder to save the images in
@@ -60,8 +61,11 @@ class DetectorManager(QWidget):
                 raise ModuleNotFoundError(message)
             
         # Make a folder name based off the current date/time and model/material
-        #TODO: add model and user info to folder name
-        new_folder_name = time.strftime("%Y-%m-%d_%H-%M-%S")
+        # If no user is selected, use only the current date/time as the folder name
+        if self.curr_user is None:
+            new_folder_name = time.strftime("%Y-%m-%d_%H-%M-%S")
+        else:
+            new_folder_name = f"{self.curr_user}_{time.strftime('%Y-%m-%d_%H-%M-%S')}"
         self.folder_path = database_dir / new_folder_name
         self.folder_path.mkdir(parents=True, exist_ok=True)
 
