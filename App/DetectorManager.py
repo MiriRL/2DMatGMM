@@ -185,7 +185,7 @@ class DetectorManager(QWidget):
         
             # Check if the image background is not the substrate color (requires a flatfield)
             flatfield_color = calculate_background_color(self.flatfield, 10)
-            if not check_median_background(image, flatfield_color):
+            if not check_median_background(image, flatfield_color, radius=10):
                 print(f"Image {image_name} background color does not match flatfield. Skipping.")
 
                 # For debugging purposes, you can the image and see what is skipped
