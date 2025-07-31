@@ -12,9 +12,10 @@ from GMMDetector import MaterialDetector
 from Parameters import Parameters
 from App.image_processing import visualise_flakes, remove_vignette, calculate_background_color, check_median_background
 
-
+# Path to the Models folder in 2DMatGMM
 MODEL_DIR = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), "Models")
 
+# This class implements the Detector tab and runs the 2DMatGMM detection algorithm
 class DetectorManager(QWidget):
 
     def __init__(self, debugging_label: QLabel, run_button: QPushButton, parent = None):

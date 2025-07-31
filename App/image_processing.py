@@ -2,6 +2,8 @@ import cv2
 import matplotlib.cm as cm
 import numpy as np
 
+# These functions are used in the app and in the scope foundry connector
+
 # Copied from 2DMatGMM demo functions
 def visualise_flakes(
     flakes,

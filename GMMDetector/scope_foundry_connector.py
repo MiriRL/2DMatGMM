@@ -9,28 +9,57 @@ FILE_OUTPUT_NAME = Path("flake_data.json")
 
 from GMMDetector import MaterialDetector
 from App.image_processing import remove_vignette, calculate_background_color, check_median_background
+from App.Parameters import Parameters
 
 MODEL_DIR = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), "Models")
 
-def run_detector_on_folder(params):
+def make_parameters(params: dict):
+    parameters = Parameters()
+    for key in params.keys():
+        match key:
+            case "size_threshold":
+                parameters.size_threshold = params["size_threshold"]
+            case "min_confidence":
+                parameters.min_confidence = params["min_confidence"]
+                # Minimum confidence filter is not currently applied in the detection
+            case "use_flatfield":
+                parameters.use_flatfield = params["use_flatfield"]
+            case "flatfield_path":
+                parameters.flatfield_path = params["flatfield_path"]
+
+    return parameters
+
+def run_detector_on_folder(params: dict):
     # Interpret parameter dictionary
-    images_dir = params["images_dir"]
-    material = params["material"]
-    model_name = params["model_file_name"]
+    if "images_dir" in params.keys():
+        images_dir = params["images_dir"]
+        if not os.path.isdir():
+            print("Warning: Image directory invalid. Exiting 2DMatGMM.")
+            return
+    else:
+        print("Warning: No image directory provided. Exiting 2DMatGMM.")
+        return
 
-    size_threshold = params["size_threshold"]
-    min_confidence = params["min_confidence"]
+    if "material" in params.keys():
+        material = params["material"]
+    else:
+        material = "N/A"
+    
+    if "model_file_name" in params.keys():
+        model_name = params["model_file_name"]
+    else:
+        print("Warning: No model file name provided. Exiting 2DMatGMM.")
+        return
 
-    use_flatfield = params["use_flatfield"]
-    flatfield_path = params["flatfield_path"]
+    parameters = make_parameters(params)
     
     output = run_model_on_folder(
         images_dir,
         model_name,
-        size_threshold,
-        min_confidence,
-        use_flatfield,
-        flatfield_path
+        parameters.size_threshold,
+        parameters.min_confidence,
+        parameters.use_flatfield,
+        parameters.flatfield_path
     )
 
     flake_data: dict = {
@@ -117,26 +146,37 @@ def run_model_on_folder(
     return all_flakes
     
 
-def run_detector_on_image(image_name, params):
+def run_detector_on_image(image_path, params: dict):
     # Interpret parameter dictionary
-    images_dir = params["images_dir"]
-    image_path = os.path.join(images_dir, image_name)
-    material = params["material"]
-    model_name = params["model_file_name"]
+    if "image_path" in params.keys():
+        image_path: Path = params["image_path"]
+        if not image_path.exists():
+            print("Warning: Image path invalid. Exiting 2DMatGMM.")
+            return
+    else:
+        print("Warning: No image path provided. Exiting 2DMatGMM.")
+        return
 
-    size_threshold = params["size_threshold"]
-    min_confidence = params["min_confidence"]
+    if "material" in params.keys():
+        material = params["material"]
+    else:
+        material = "N/A"
+    
+    if "model_file_name" in params.keys():
+        model_name = params["model_file_name"]
+    else:
+        print("Warning: No model file name provided. Exiting 2DMatGMM.")
+        return
 
-    use_flatfield = params["use_flatfield"]
-    flatfield_path = params["flatfield_path"]
+    parameters = make_parameters(params)
     
     output = run_model_on_image(
         image_path,
         model_name,
-        size_threshold,
-        min_confidence,
-        use_flatfield,
-        flatfield_path
+        parameters.size_threshold,
+        parameters.min_confidence,
+        parameters.use_flatfield,
+        parameters.flatfield_path
     )
 
     flake_data: dict = {
