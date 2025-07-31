@@ -146,7 +146,7 @@ def run_model_on_folder(
     return all_flakes
     
 
-def run_detector_on_image(image_path, params: dict):
+def run_detector_on_image(params: dict):
     # Interpret parameter dictionary
     if "image_path" in params.keys():
         image_path: Path = params["image_path"]
@@ -273,7 +273,7 @@ if __name__ == "__main__":
     try:
         with open(param_file, "r") as f:
             params = json.load(f)
-        run_detector_on_folder(params)
+        run_detector_on_image(params)
     except Exception as e:
         print(f"Failed to load or process parameter file: {e}", file=sys.stderr)
         sys.exit(1)
