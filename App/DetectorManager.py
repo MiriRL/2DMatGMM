@@ -188,7 +188,7 @@ class DetectorManager(QWidget):
             if not check_median_background(image, flatfield_color, radius=10):
                 print(f"Image {image_name} background color does not match flatfield. Skipping.")
 
-                # For debugging purposes, you can the image and see what is skipped
+                # For debugging purposes, you can save the image and see what is skipped
                 # cv2.imwrite(os.path.join(self.folder_path, "skipped_" + image_name), image)
                 
                 # Move to the next image
