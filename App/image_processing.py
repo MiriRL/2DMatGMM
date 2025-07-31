@@ -2,7 +2,7 @@ import cv2
 import matplotlib.cm as cm
 import numpy as np
 
-
+# Copied from 2DMatGMM demo functions
 def visualise_flakes(
     flakes,
     image: np.ndarray,
@@ -57,7 +57,7 @@ def visualise_flakes(
 
     return image
 
-
+# Copied from 2DMatGMM demo functions
 def remove_vignette(
     image,
     flatfield,
@@ -77,7 +77,7 @@ def remove_vignette(
     image_no_vigentte[image_no_vigentte > max_background_value] = max_background_value
     return np.asarray(image_no_vigentte, dtype=np.uint8)
 
-
+# Referenced from 2DMatGMM demo functions. Updated for a more robust detection method.
 def calculate_background_color(img, radius=5):
     masks = []
 
@@ -113,13 +113,17 @@ def calculate_background_color(img, radius=5):
     return cv2.mean(img, mask=final_mask)[:3]
 
 def check_median_background(img, background_color, radius=40, percent_matching=0.6) -> bool:
-    """Check if the median color of the image is close to the background color. Returns true if there is a matching background color within the radius.
+    """Check if the median color of the image is close to the background color. Used to filter out images taken off the chip.
     
     Args:
         img (np.ndarray): The input image.
         background_color (tuple): The RGB color of the background to check against.
         radius (int): The range around the background color to consider as a match.
-        percent_matching (float): The percentage of pixels that must match the background color."""
+        percent_matching (float): The percentage of pixels that must match the background color.
+        
+    Returns: 
+        (bool): True if there is a similar color in the image, matching the background color within the radius, at or above the given percent.
+    """
     
     bg_color = np.array(background_color)
     range_array = np.array([radius] * 3)

@@ -8,7 +8,7 @@ PATH_TO_SCOPE_FOUNDRY = Path("C:/Users/Darcey/Documents/scopefoundry_apps/monark
 FILE_OUTPUT_NAME = Path("flake_data.json")
 
 from GMMDetector import MaterialDetector
-from scripts.demo_functions import remove_vignette, calculate_background_color, check_median_background
+from App.image_processing import remove_vignette, calculate_background_color, check_median_background
 
 MODEL_DIR = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), "Models")
 

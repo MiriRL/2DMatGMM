@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-from App.demo_functions import calculate_background_color, remove_vignette
+from App.image_processing import calculate_background_color, remove_vignette
 from sklearn.mixture import GaussianMixture
 
 def get_contrasts_from_img(

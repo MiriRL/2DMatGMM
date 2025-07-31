@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QLabel, QProgressBar, QHBoxLayout, QWidget, QLabel
 
 from GMMDetector import MaterialDetector
 from Parameters import Parameters
-from demo_functions import visualise_flakes, remove_vignette, calculate_background_color, check_median_background
+from App.image_processing import visualise_flakes, remove_vignette, calculate_background_color, check_median_background
 
 
 MODEL_DIR = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), "Models")
