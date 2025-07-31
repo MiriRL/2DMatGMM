@@ -149,8 +149,8 @@ def run_model_on_folder(
 def run_detector_on_image(params: dict):
     # Interpret parameter dictionary
     if "image_path" in params.keys():
-        image_path: Path = params["image_path"]
-        if not image_path.exists():
+        image_path: str = params["image_path"]
+        if not os.path.exists(image_path):
             print("Warning: Image path invalid. Exiting 2DMatGMM.")
             return
     else:
